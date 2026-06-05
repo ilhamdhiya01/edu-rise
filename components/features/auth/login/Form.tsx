@@ -2,12 +2,13 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AxiosError } from 'axios';
+import { error } from 'console';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
-import { getUserFromToken } from '@/lib/helpers';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { LoginInput } from '@/lib/types/auth.types';
 import { loginSchema } from '@/schemas/auth.schema';
@@ -22,8 +23,8 @@ const DEFAULT_VALUES: LoginInput = {
   password: '',
 };
 
-const Form = () => {
-  const { handleLogin, isPending, error } = useAuth();
+const LoginForm = () => {
+  const { handleLogin, isLoggingIn, loginError } = useAuth();
 
   const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
 
@@ -74,21 +75,27 @@ const Form = () => {
           />
           <span className="text-gray-600">Ingat saya</span>
         </label>
-        <a href="#" className="text-primary-600 font-medium hover:underline">
-          Lupa password?
-        </a>
+        <span>
+          Belum punya akun?{' '}
+          <Link
+            href="/register"
+            className="text-primary-600 font-medium hover:underline"
+          >
+            Daftar
+          </Link>
+        </span>
       </div>
 
-      {error && (
+      {loginError && (
         <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-          {(error as AxiosError<ErrorResponse>)?.response?.data?.message ||
+          {(loginError as AxiosError<ErrorResponse>)?.response?.data?.message ||
             'Login gagal. Silakan coba lagi.'}
         </div>
       )}
 
-      <Button type="submit" label="Masuk" fullWidth isLoading={isPending} />
+      <Button type="submit" label="Masuk" fullWidth isLoading={isLoggingIn} />
     </form>
   );
 };
 
-export default Form;
+export default LoginForm;

@@ -1,7 +1,12 @@
-import { Auth } from '@/components/features/auth/login';
+import { Auth } from '@/components/features/auth';
 
 const LoginPage = () => {
-  return <Auth />;
+  return (
+    <Auth.Layout>
+      <Auth.BrandHeader subtitle="Masuk" />
+      <Auth.LoginForm />
+    </Auth.Layout>
+  );
 };
 
 export default LoginPage;

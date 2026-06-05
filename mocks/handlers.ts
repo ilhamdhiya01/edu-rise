@@ -1,6 +1,8 @@
 // src/mocks/handlers.ts
 import { http, HttpResponse } from 'msw';
 
+import { MOCK_USER } from '@/const/user.constant';
+import { dbOps } from '@/lib/index-db';
 import { LoginInput } from '@/lib/types/auth.types';
 import { API_AUTH_LOGIN } from '@/routes';
 
@@ -11,14 +13,11 @@ export const handlers = [
 
     // Simulasi jika login berhasil
     if (requestBody?.email === 'user@gmail.com') {
+      await dbOps.add('users', MOCK_USER);
       return HttpResponse.json(
         {
           success: true,
-          data: {
-            id: '1',
-            name: 'Developer Ganteng',
-            email: requestBody.email,
-          },
+          data: MOCK_USER,
         },
         {
           status: 200,
