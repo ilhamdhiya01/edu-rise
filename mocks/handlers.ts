@@ -14,14 +14,15 @@ export const handlers = [
       return HttpResponse.json(
         {
           success: true,
-          user: {
+          data: {
             id: '1',
             name: 'Developer Ganteng',
             email: requestBody.email,
           },
-          token: 'mocked-jwt-token',
         },
-        { status: 200 }
+        {
+          status: 200,
+        }
       );
     }
 

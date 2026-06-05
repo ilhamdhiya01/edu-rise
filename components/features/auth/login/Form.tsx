@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
+import { getUserFromToken } from '@/lib/helpers';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { LoginInput } from '@/lib/types/auth.types';
 import { loginSchema } from '@/schemas/auth.schema';
@@ -22,7 +23,7 @@ const DEFAULT_VALUES: LoginInput = {
 };
 
 const Form = () => {
-  const { handleLogin, isLoading, error } = useAuth();
+  const { handleLogin, isPending, error } = useAuth();
 
   const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
 
@@ -85,7 +86,7 @@ const Form = () => {
         </div>
       )}
 
-      <Button type="submit" label="Masuk" fullWidth isLoading={isLoading} />
+      <Button type="submit" label="Masuk" fullWidth isLoading={isPending} />
     </form>
   );
 };

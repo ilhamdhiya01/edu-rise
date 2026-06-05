@@ -3,7 +3,8 @@ import { AxiosError } from 'axios';
 
 import { login } from '@/services/auth.service';
 
-import { LoginInput } from '../types/auth.types';
+import { createMockJWT } from '../helpers';
+import { LoginInput, LoginResponse } from '../types/auth.types';
 
 interface ErrorResponse {
   success: boolean;
@@ -13,8 +14,13 @@ interface ErrorResponse {
 export const useAuth = () => {
   const mutation = useMutation({
     mutationFn: (payload: LoginInput) => login(payload),
-    onSuccess: (newData) => {
-      console.log('Login success:', newData);
+    onSuccess: (response: LoginResponse) => {
+      // Manual set cookie for development with MSW
+      if (process.env.NODE_ENV === 'development') {
+        const mockUser = response.data;
+        const mockJWT = createMockJWT(mockUser);
+        document.cookie = `token=${mockJWT}; Path=/; Max-Age=86400; SameSite=Lax`;
+      }
     },
     onError: (error: AxiosError<ErrorResponse>) => {
       console.error(
@@ -26,7 +32,6 @@ export const useAuth = () => {
 
   return {
     handleLogin: mutation.mutate,
-    isLoading: mutation.isPending,
-    error: mutation.error,
+    ...mutation,
   };
 };
