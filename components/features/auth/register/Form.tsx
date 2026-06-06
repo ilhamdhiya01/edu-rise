@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AxiosError } from 'axios';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -9,6 +10,7 @@ import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { RegisterInput } from '@/lib/types/auth.types';
+import { LOGIN_PATH } from '@/routes';
 import { registerSchema } from '@/schemas/auth.schema';
 
 interface ErrorResponse {
@@ -96,12 +98,23 @@ const RegisterForm = () => {
         </div>
       )}
 
-      <Button
-        type="submit"
-        label="Daftar"
-        fullWidth
-        isLoading={isRegistering}
-      />
+      <div className="flex flex-col gap-2">
+        <Button
+          type="submit"
+          label="Daftar"
+          fullWidth
+          isLoading={isRegistering}
+        />
+        <span className="ml-auto text-sm">
+          Sudah punya akun?{' '}
+          <Link
+            href={LOGIN_PATH}
+            className="text-primary-600 font-medium hover:underline"
+          >
+            Masuk
+          </Link>
+        </span>
+      </div>
     </form>
   );
 };

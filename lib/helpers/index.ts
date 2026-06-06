@@ -1,13 +1,21 @@
+import { v4 as uuidv4 } from 'uuid';
+
 /**
  * Creates a mock JWT token for development purposes
  * @param payload The payload to encode in the JWT
  * @returns A mock JWT token
  */
-export const createMockJWT = (payload: object) => {
+export const createMockJWT = (payload: object, isRememberMe?: boolean) => {
+  const token = uuidv4();
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const data = btoa(JSON.stringify(payload));
-  const signature = 'mock-signature';
-  return `${header}.${data}.${signature}`;
+  const signature = token;
+  const mockJWT = `${header}.${data}.${signature}`;
+
+  const maxAge = isRememberMe ? 86400 * 30 : 86400;
+  document.cookie = `token=${mockJWT}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+
+  return mockJWT;
 };
 
 /**

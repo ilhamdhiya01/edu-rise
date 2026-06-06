@@ -1,10 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
+import { useRouter } from 'next/navigation';
 
+import { ROOT_PATH } from '@/routes';
 import { login, register } from '@/services/auth.service';
 
-import { createMockJWT } from '../helpers';
-import { AuthResponse, LoginInput, RegisterInput } from '../types/auth.types';
+import { LoginRequest, RegisterRequest } from '../types/auth.types';
 
 interface ErrorResponse {
   success: boolean;
@@ -12,14 +13,13 @@ interface ErrorResponse {
 }
 
 export const useAuth = () => {
+  const router = useRouter();
+
   const loginmMutation = useMutation({
-    mutationFn: (payload: LoginInput) => login(payload),
-    onSuccess: (response: AuthResponse) => {
-      // Manual set cookie for development with MSW
-      if (process.env.NODE_ENV === 'development') {
-        const mockUser = response.data;
-        const mockJWT = createMockJWT(mockUser);
-        document.cookie = `token=${mockJWT}; Path=/; Max-Age=86400; SameSite=Lax`;
+    mutationFn: (payload: LoginRequest) => login(payload),
+    onSuccess: (response) => {
+      if (response.success) {
+        router.replace(ROOT_PATH);
       }
     },
     onError: (error: AxiosError<ErrorResponse>) => {
@@ -31,13 +31,10 @@ export const useAuth = () => {
   });
 
   const registerMutation = useMutation({
-    mutationFn: (payload: RegisterInput) => register(payload),
-    onSuccess: (response: AuthResponse) => {
-      // Manual set cookie for development with MSW
-      if (process.env.NODE_ENV === 'development') {
-        const mockUser = response.data;
-        const mockJWT = createMockJWT(mockUser);
-        document.cookie = `token=${mockJWT}; Path=/; Max-Age=86400; SameSite=Lax`;
+    mutationFn: (payload: RegisterRequest) => register(payload),
+    onSuccess: (response) => {
+      if (response.success) {
+        router.replace(ROOT_PATH);
       }
     },
     onError: (error: AxiosError<ErrorResponse>) => {

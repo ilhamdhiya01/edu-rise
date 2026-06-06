@@ -3,6 +3,7 @@ import axios from 'axios';
 import { LOGIN_PATH } from '@/routes';
 
 const axiosInstance = axios.create({
+  baseURL: '/',
   headers: {
     'Content-Type': 'application/json',
   },
