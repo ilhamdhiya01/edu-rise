@@ -1,19 +1,23 @@
 import { create } from 'zustand';
 
+import { User } from '@/lib/types/auth.types';
+
 type AuthState = {
-  isRememberMe: boolean;
+  user: User | null;
+  isAuthenticated: boolean;
 };
 type AuthAction = {
-  setIsRememberMe: (isRememberMe: boolean) => void;
+  setUser: (user: User | null) => void;
 };
 
 type AuthStore = AuthState & AuthAction;
 
 const initialState: AuthState = {
-  isRememberMe: false,
+  user: null,
+  isAuthenticated: false,
 };
 
 export const useAuthStore = create<AuthStore>((set) => ({
   ...initialState,
-  setIsRememberMe: (isRememberMe: boolean) => set({ isRememberMe }),
+  setUser: (user: User | null) => set({ user, isAuthenticated: !!user }),
 }));

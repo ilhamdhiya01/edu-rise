@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import React from 'react';
 
+import Navbar from '@/components/shared/layout/navbar/Navbar';
+
 export const metadata: Metadata = {
   title: 'Dashboard - Edu Rise',
   description: 'Edu Rise Dashboard',
@@ -8,9 +10,10 @@ export const metadata: Metadata = {
 
 const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
-    <main className="flex min-h-screen w-full">
-      <section className="flex-1">{children}</section>
-    </main>
+    <>
+      <Navbar />
+      <main className="flex min-h-[calc(100dvh-80px)] w-full">{children}</main>
+    </>
   );
 };
 

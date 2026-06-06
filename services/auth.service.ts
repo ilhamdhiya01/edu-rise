@@ -1,9 +1,11 @@
 import axiosInstance from '@/lib/axios';
+import { getUserFromToken } from '@/lib/helpers';
 import { ApiResponse } from '@/lib/types/api.types';
 import {
   AuthResponse,
   LoginRequest,
   RegisterRequest,
+  User,
 } from '@/lib/types/auth.types';
 import { API_AUTH_LOGIN, API_AUTH_REGISTER, API_AUTH_USERS } from '@/routes';
 
@@ -20,7 +22,7 @@ export const login = async (
 
 export const getUserByEmail = async (
   email: string
-): Promise<ApiResponse<{ email: string }>> => {
+): Promise<ApiResponse<User>> => {
   try {
     const res = await axiosInstance.get(`${API_AUTH_USERS}?email=${email}`);
     return res.data;

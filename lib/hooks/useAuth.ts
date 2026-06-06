@@ -1,11 +1,12 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 
-import { ROOT_PATH } from '@/routes';
+import { LOGIN_PATH, ROOT_PATH } from '@/routes';
 import { login, register } from '@/services/auth.service';
 
 import { LoginRequest, RegisterRequest } from '../types/auth.types';
+import { useUser } from './useUser';
 
 interface ErrorResponse {
   success: boolean;
@@ -14,6 +15,8 @@ interface ErrorResponse {
 
 export const useAuth = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { user, setUser } = useUser();
 
   const loginmMutation = useMutation({
     mutationFn: (payload: LoginRequest) => login(payload),
@@ -45,6 +48,14 @@ export const useAuth = () => {
     },
   });
 
+  const logout = () => {
+    document.cookie = 'token=; Path=/; Max-Age=0; SameSite=Lax';
+    queryClient.setQueryData(['currentUser', user?.email], null);
+    queryClient.removeQueries({ queryKey: ['currentUser'] });
+    setUser(null);
+    router.replace(LOGIN_PATH);
+  };
+
   return {
     handleLogin: loginmMutation.mutate,
     isLoggingIn: loginmMutation.isPending,
@@ -53,5 +64,7 @@ export const useAuth = () => {
     handleRegister: registerMutation.mutate,
     isRegistering: registerMutation.isPending,
     registerError: registerMutation.error,
+
+    logout,
   };
 };

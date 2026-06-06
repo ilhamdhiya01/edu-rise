@@ -3,7 +3,12 @@ import { http, HttpResponse } from 'msw';
 
 import { createMockJWT } from '@/lib/helpers';
 import { dbOps } from '@/lib/index-db';
-import { LoginRequest, RegisterInput, User } from '@/lib/types/auth.types';
+import {
+  LoginRequest,
+  RegisterInput,
+  RegisterRequest,
+  User,
+} from '@/lib/types/auth.types';
 import { API_AUTH_LOGIN, API_AUTH_REGISTER, API_AUTH_USERS } from '@/routes';
 
 export const handlers = [
@@ -49,6 +54,8 @@ export const handlers = [
         firstName: existingUser.firstName,
         lastName: existingUser.lastName,
         email: existingUser.email,
+        image: existingUser.image,
+        position: existingUser.position,
       };
 
       // generate token
@@ -92,7 +99,7 @@ export const handlers = [
         );
       }
 
-      const user = await dbOps.getByEmail('users', email);
+      const user: User = await dbOps.getByEmail('users', email);
 
       if (!user) {
         return HttpResponse.json(
@@ -104,10 +111,14 @@ export const handlers = [
         );
       }
 
+      const userData: Omit<User, 'password'> = {
+        ...user,
+      };
+
       return HttpResponse.json(
         {
           success: true,
-          data: user,
+          data: userData,
         },
         { status: 200 }
       );
@@ -125,7 +136,7 @@ export const handlers = [
   // Mencegat HTTP POST ke '/api/auth/register'
   http.post(API_AUTH_REGISTER, async ({ request }) => {
     try {
-      const requestBody = (await request.json()) as RegisterInput;
+      const requestBody = (await request.json()) as RegisterRequest;
 
       // Check if user already exists
       const existingUser = await dbOps.getByEmail('users', requestBody.email);
@@ -145,6 +156,8 @@ export const handlers = [
       const newUser = {
         ...requestBody,
         password: hashedPassword,
+        image: '/images/default.webp',
+        position: 'Senior Frontend',
         id: Date.now().toString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -157,6 +170,8 @@ export const handlers = [
         firstName: newUser.firstName,
         lastName: newUser.lastName,
         email: newUser.email,
+        image: newUser.image,
+        position: newUser.position,
       };
 
       // generate token
