@@ -19,7 +19,7 @@ const RootLayout = ({
   return (
     <html lang="en" className={`${poppins.variable} h-full antialiased`}>
       <body
-        className={`${poppins.className} bg-secondary-100 flex min-h-full flex-col`}
+        className={`${poppins.className} bg-secondary-100 relative flex min-h-full flex-col`}
       >
         <QueryProviders>{children}</QueryProviders>
       </body>

@@ -3,27 +3,22 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AxiosError } from 'axios';
 import Link from 'next/link';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { LoginInput } from '@/lib/types/auth.types';
+import { ErrorResponse, LoginInput } from '@/lib/types/auth.types';
 import { REGISTER_PATH } from '@/routes';
 import { loginSchema } from '@/schemas/auth.schema';
-
-interface ErrorResponse {
-  success: boolean;
-  message: string;
-}
 
 const DEFAULT_VALUES: LoginInput = {
   email: '',
   password: '',
 };
 
-const LoginForm = () => {
+const LoginForm = memo(() => {
   const { handleLogin, isLoggingIn, loginError } = useAuth();
 
   // const { isRememberMe, setIsRememberMe } = useAuthStore(
@@ -106,6 +101,8 @@ const LoginForm = () => {
       <Button type="submit" label="Masuk" fullWidth isLoading={isLoggingIn} />
     </form>
   );
-};
+});
+
+LoginForm.displayName = 'LoginForm';
 
 export default LoginForm;

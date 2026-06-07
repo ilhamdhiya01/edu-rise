@@ -1,6 +1,7 @@
 import Image from 'next/image';
+import { memo } from 'react';
 
-const Ilustration = () => {
+const Ilustration = memo(() => {
   return (
     <div className="relative aspect-4/5 w-full max-w-[550px]">
       <Image
@@ -8,11 +9,13 @@ const Ilustration = () => {
         alt="Login Background"
         fill
         priority
-        sizes="(max-width: 1024px) 0vw, (max-width: 1440px) 40vw, 550px"
         className="object-contain"
+        sizes="(max-width: 1024px) 0vw, (max-width: 1440px) 40vw, 550px"
       />
     </div>
   );
-};
+});
+
+Ilustration.displayName = 'Ilustration';
 
 export default Ilustration;

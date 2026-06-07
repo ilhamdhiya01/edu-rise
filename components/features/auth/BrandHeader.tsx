@@ -1,4 +1,6 @@
-const BrandHeader = ({ subtitle }: { subtitle?: string }) => {
+import { memo } from 'react';
+
+const BrandHeader = memo(({ subtitle }: { subtitle?: string }) => {
   return (
     <div className="space-y-2">
       <h1 className="text-primary-500 text-5xl font-bold md:text-6xl">
@@ -14,6 +16,8 @@ const BrandHeader = ({ subtitle }: { subtitle?: string }) => {
       )}
     </div>
   );
-};
+});
+
+BrandHeader.displayName = 'BrandHeader';
 
 export default BrandHeader;

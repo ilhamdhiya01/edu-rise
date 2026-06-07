@@ -3,20 +3,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AxiosError } from 'axios';
 import Link from 'next/link';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { RegisterInput } from '@/lib/types/auth.types';
+import { ErrorResponse, RegisterInput } from '@/lib/types/auth.types';
 import { LOGIN_PATH } from '@/routes';
 import { registerSchema } from '@/schemas/auth.schema';
-
-interface ErrorResponse {
-  success: boolean;
-  message: string;
-}
 
 const DEFAULT_VALUES: RegisterInput = {
   email: '',
@@ -25,7 +20,7 @@ const DEFAULT_VALUES: RegisterInput = {
   lastName: '',
 };
 
-const RegisterForm = () => {
+const RegisterForm = memo(() => {
   const { handleRegister, isRegistering, registerError } = useAuth();
 
   const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
@@ -117,6 +112,8 @@ const RegisterForm = () => {
       </div>
     </form>
   );
-};
+});
+
+RegisterForm.displayName = 'RegisterForm';
 
 export default RegisterForm;

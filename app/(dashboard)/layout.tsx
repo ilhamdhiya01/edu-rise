@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import React from 'react';
 
-import Navbar from '@/components/shared/layout/navbar/Navbar';
+import Navbar from '@/components/shared/layout/navbar';
+import ProfileHeader from '@/components/shared/profile-header';
 
 export const metadata: Metadata = {
   title: 'Dashboard - Edu Rise',
@@ -12,7 +13,12 @@ const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
     <>
       <Navbar />
-      <main className="flex min-h-[calc(100dvh-80px)] w-full">{children}</main>
+      <main className="flex min-h-screen w-full bg-white">
+        <section className="container mx-auto flex flex-1 flex-col space-y-6 px-4 md:px-0">
+          <ProfileHeader />
+          {children}
+        </section>
+      </main>
     </>
   );
 };
