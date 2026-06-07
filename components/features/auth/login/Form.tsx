@@ -21,19 +21,13 @@ const DEFAULT_VALUES: LoginInput = {
 const LoginForm = memo(() => {
   const { handleLogin, isLoggingIn, loginError } = useAuth();
 
-  // const { isRememberMe, setIsRememberMe } = useAuthStore(
-  //   useShallow((state) => ({
-  //     isRememberMe: state.isRememberMe,
-  //     setIsRememberMe: state.setIsRememberMe,
-  //   }))
-  // );
-
   const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
   const [isRememberMe, setIsRememberMe] = useState<boolean>(false);
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -42,6 +36,7 @@ const LoginForm = memo(() => {
 
   const onSubmit = (data: LoginInput) => {
     handleLogin({ ...data, rememberMe: isRememberMe });
+    reset(DEFAULT_VALUES);
   };
 
   return (

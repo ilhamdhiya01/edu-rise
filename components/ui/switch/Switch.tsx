@@ -1,10 +1,6 @@
 import classNames from 'classnames';
 import React, { forwardRef, useId } from 'react';
 
-// Jika Switch butuh icon di dalam bulatan atau di samping teks, bisa pakai ini.
-// Jika tidak dipakai sementara, bisa dibiarkan atau dihapus.
-import Icon, { IconProps } from '../icon';
-
 interface SwitchProps extends Omit<
   React.ComponentPropsWithRef<'input'>,
   'type' | 'children'

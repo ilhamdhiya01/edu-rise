@@ -3,12 +3,7 @@ import { http, HttpResponse } from 'msw';
 
 import { createMockJWT } from '@/lib/helpers';
 import { dbOps } from '@/lib/index-db';
-import {
-  LoginRequest,
-  RegisterInput,
-  RegisterRequest,
-  User,
-} from '@/lib/types/auth.types';
+import { LoginRequest, RegisterRequest, User } from '@/lib/types/auth.types';
 import { API_AUTH_LOGIN, API_AUTH_REGISTER, API_AUTH_USERS } from '@/routes';
 
 export const handlers = [

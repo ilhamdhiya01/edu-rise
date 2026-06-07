@@ -71,7 +71,7 @@ export const Section = ({ children, title, className }: SectionProps) => {
           {title}
         </h2>
       )}
-      <div className="grid grid-cols-12 gap-8">{children}</div>
+      <div className="grid grid-cols-12 gap-8 md:gap-0">{children}</div>
     </div>
   );
 };
