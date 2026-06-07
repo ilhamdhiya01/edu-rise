@@ -41,3 +41,17 @@ export const getUserFromToken = () => {
     return null;
   }
 };
+
+/**
+ * Converts a File object to a data URL
+ * @param file The file to convert
+ * @returns A promise that resolves to the data URL
+ */
+export const fileToDataURL = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};

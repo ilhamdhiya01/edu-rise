@@ -35,4 +35,16 @@ export const dbOps = {
     // 'users' = nama store, 'by-email' = nama index yang dibuat di upgrade()
     return db.getFromIndex(storeName, 'by-email', email);
   },
+
+  updateByEmail: async (
+    storeName: string,
+    email: string,
+    data: Record<string, unknown>
+  ) => {
+    const db = await initDB(storeName);
+    const existing = await db.getFromIndex(storeName, 'by-email', email);
+    if (!existing) throw new Error('User not found');
+    const updated = { ...existing, ...data };
+    return db.put(storeName, updated);
+  },
 };

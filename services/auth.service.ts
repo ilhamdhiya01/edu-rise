@@ -1,5 +1,4 @@
 import axiosInstance from '@/lib/axios';
-import { getUserFromToken } from '@/lib/helpers';
 import { ApiResponse } from '@/lib/types/api.types';
 import {
   AuthResponse,

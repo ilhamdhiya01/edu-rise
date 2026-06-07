@@ -10,6 +10,28 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+// ✅ Request interceptor - Attach token to every request
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // Get token from cookie
+    const token = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('token='))
+      ?.split('=')[1];
+
+    // Attach token to Authorization header
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor - Handle errors
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {

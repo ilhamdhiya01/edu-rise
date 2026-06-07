@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { isEqual } from 'lodash';
 import { useShallow } from 'zustand/shallow';
 
 import { getUserByEmail } from '@/services/auth.service';
@@ -37,8 +38,10 @@ export const useUser = () => {
     select: (apiResponse) => {
       const userData = apiResponse?.data;
 
+      const sameUser = isEqual(userStore, userData);
+
       // Sync to zustand if data is different from store
-      if (userData && JSON.stringify(userStore) !== JSON.stringify(userData)) {
+      if (!sameUser) {
         setTimeout(() => setUser(userData), 0);
       }
 
@@ -52,5 +55,6 @@ export const useUser = () => {
     setUser,
     isLoading,
     isError,
+    userToken,
   };
 };
