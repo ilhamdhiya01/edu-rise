@@ -10,7 +10,7 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-// ✅ Request interceptor - Attach token to every request
+// Request interceptor - Attach token to every request
 axiosInstance.interceptors.request.use(
   (config) => {
     // Get token from cookie

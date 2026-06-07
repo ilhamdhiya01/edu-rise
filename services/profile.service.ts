@@ -1,8 +1,13 @@
+import { rest } from 'lodash';
+
 import axiosInstance from '@/lib/axios';
 import { fileToDataURL } from '@/lib/helpers';
 import { ApiResponse } from '@/lib/types/api.types';
 import { User } from '@/lib/types/auth.types';
-import { UserDataRequest } from '@/lib/types/profile.types';
+import {
+  UpdatePasswordPayload,
+  UserDataRequest,
+} from '@/lib/types/profile.types';
 
 export const updateUserData = async (
   data: UserDataRequest
@@ -24,6 +29,14 @@ export const updateUserImage = async (
   const res = await axiosInstance.put('api/users/update-image', {
     image: imageUrl,
   });
+
+  return res.data;
+};
+
+export const updatePassword = async (
+  payload: UpdatePasswordPayload
+): Promise<ApiResponse<User>> => {
+  const res = await axiosInstance.put('api/users/update-password', payload);
 
   return res.data;
 };

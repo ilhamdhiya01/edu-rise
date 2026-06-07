@@ -92,8 +92,8 @@ const UserDataForm = memo(() => {
     values: user ? mapUserToFormData(user) : undefined,
   });
 
-  const onSubmit = handleSubmit((data) => {
-    handleUpdateUserData(data);
+  const onSubmit = handleSubmit(async (data) => {
+    await handleUpdateUserData(data);
   });
 
   if (isLoading) {

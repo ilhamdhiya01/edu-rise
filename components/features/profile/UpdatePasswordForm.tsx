@@ -1,10 +1,14 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { memo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
+import { useProfile } from '@/lib/hooks/useProfile';
+import { UpdatePasswordInput } from '@/lib/types/profile.types';
+import { updatePasswordSchema } from '@/schemas/profile.schema';
 
 type PasswordType = 'password' | 'text';
 type PasswordKey = 'password' | 'newPassword' | 'confirmPassword';
@@ -22,6 +26,7 @@ const DEFAULT_VALUES = {
 } as const;
 
 const UpdatePasswordForm = memo(() => {
+  const { handleUpdatePassword, isUpdatingPassword } = useProfile();
   const [isPasswordVisible, setIsPasswordVisible] = useState<PasswordVisible>({
     password: {
       icon: 'TbEye',
@@ -39,8 +44,10 @@ const UpdatePasswordForm = memo(() => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<typeof DEFAULT_VALUES>({
+  } = useForm<UpdatePasswordInput>({
+    resolver: zodResolver(updatePasswordSchema),
     defaultValues: DEFAULT_VALUES,
   });
 
@@ -54,8 +61,14 @@ const UpdatePasswordForm = memo(() => {
     });
   };
 
-  const onSubmit = (data: typeof DEFAULT_VALUES) => {
-    console.log(data);
+  const onSubmit = async (data: UpdatePasswordInput) => {
+    try {
+      const { confirmPassword, ...payload } = data;
+      await handleUpdatePassword(payload);
+      reset();
+    } catch (error) {
+      console.error('Password update failed:', error);
+    }
   };
 
   return (
@@ -63,34 +76,47 @@ const UpdatePasswordForm = memo(() => {
       <Input
         {...register('password')}
         label="Password"
+        placeholder="Masukkan password"
+        required
         suffix={{
           icon: isPasswordVisible.password.icon,
           onClick: () => handleTogglePasswordVisibility('password'),
         }}
         type={isPasswordVisible.password.type}
         fullWidth
+        error={errors.password?.message}
       />
       <Input
         {...register('newPassword')}
         label="Password Baru"
+        placeholder="Masukkan password baru"
+        required
         suffix={{
           icon: isPasswordVisible.newPassword.icon,
           onClick: () => handleTogglePasswordVisibility('newPassword'),
         }}
         type={isPasswordVisible.newPassword.type}
         fullWidth
+        error={errors.newPassword?.message}
       />
       <Input
         {...register('confirmPassword')}
         label="Konfirmasi Password Baru"
+        placeholder="Masukkan konfirmasi password baru"
+        required
         suffix={{
           icon: isPasswordVisible.confirmPassword.icon,
           onClick: () => handleTogglePasswordVisibility('confirmPassword'),
         }}
         type={isPasswordVisible.confirmPassword.type}
         fullWidth
+        error={errors.confirmPassword?.message}
       />
-      <Button type="submit" label="Ubah Password" />
+      <Button
+        type="submit"
+        label="Ubah Password"
+        isLoading={isUpdatingPassword}
+      />
     </form>
   );
 });

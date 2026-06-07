@@ -2,11 +2,15 @@ import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
 
-import { updateUserData, updateUserImage } from '@/services/profile.service';
+import {
+  updatePassword,
+  updateUserData,
+  updateUserImage,
+} from '@/services/profile.service';
 
 import { queryClient } from '../tanstack-query';
-import { ErrorResponse, User } from '../types/auth.types';
-import { UserDataRequest } from '../types/profile.types';
+import { ErrorResponse, RegisterRequest, User } from '../types/auth.types';
+import { UpdatePasswordPayload, UserDataRequest } from '../types/profile.types';
 import { useUser } from './useUser';
 
 export const useProfile = () => {
@@ -167,13 +171,32 @@ export const useProfile = () => {
     },
   });
 
+  const updatePasswordMutation = useMutation({
+    mutationFn: (payload: UpdatePasswordPayload) => updatePassword(payload),
+    onSuccess: (response) => {
+      if (response.success) {
+        toast.success(response.message || 'Password updated successfully');
+      }
+    },
+    onError: (error: AxiosError<ErrorResponse>) => {
+      toast.error(error.response?.data?.message || 'Failed to update password');
+    },
+  });
+
   return {
-    handleUpdateUserData: userDataMutation.mutate,
+    handleUpdateUserData: userDataMutation.mutateAsync,
     isUpdating: userDataMutation.isPending,
     updateError: userDataMutation.error,
+    isUpdateSuccess: userDataMutation.isSuccess,
 
-    handleUpdateUserImage: imageMutation.mutate,
+    handleUpdateUserImage: imageMutation.mutateAsync,
     isUpdatingImage: imageMutation.isPending,
     updateImageError: imageMutation.error,
+    isUpdateImageSuccess: imageMutation.isSuccess,
+
+    handleUpdatePassword: updatePasswordMutation.mutateAsync,
+    isUpdatingPassword: updatePasswordMutation.isPending,
+    updatePasswordError: updatePasswordMutation.error,
+    isPasswordSuccess: updatePasswordMutation.isSuccess,
   };
 };

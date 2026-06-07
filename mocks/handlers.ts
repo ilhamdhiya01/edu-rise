@@ -5,7 +5,10 @@ import { http, HttpResponse } from 'msw';
 import { createMockJWT } from '@/lib/helpers';
 import { dbOps } from '@/lib/index-db';
 import { LoginRequest, RegisterRequest, User } from '@/lib/types/auth.types';
-import { UserDataRequest } from '@/lib/types/profile.types';
+import {
+  UpdatePasswordPayload,
+  UserDataRequest,
+} from '@/lib/types/profile.types';
 import { API_AUTH_LOGIN, API_AUTH_REGISTER, API_AUTH_USERS } from '@/routes';
 
 export const handlers = [
@@ -202,9 +205,24 @@ export const handlers = [
     try {
       const requestBody = (await request.json()) as UserDataRequest;
 
-      const { email, ...updateData } = requestBody;
+      const token = request.headers
+        .get('Authorization')
+        ?.replace('Bearer ', '');
 
-      const existingUser = await dbOps.getByEmail('users', email);
+      if (!token) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: 'Unauthorized',
+          },
+          { status: 401 }
+        );
+      }
+
+      const decoded = jwtDecode<{ email: string }>(token);
+      const user: User = await dbOps.getByEmail('users', decoded.email);
+
+      const existingUser = await dbOps.getByEmail('users', user.email);
 
       if (!existingUser) {
         return HttpResponse.json(
@@ -218,10 +236,10 @@ export const handlers = [
 
       const mergedData = {
         ...existingUser,
-        ...updateData,
+        ...requestBody,
       };
 
-      await dbOps.updateByEmail('users', email, mergedData);
+      await dbOps.updateByEmail('users', user.email, mergedData);
 
       const { password: _, ...userData } = mergedData;
 
@@ -300,6 +318,79 @@ export const handlers = [
         {
           success: false,
           message: 'Failed to update profile image',
+        },
+        { status: 500 }
+      );
+    }
+  }),
+
+  http.put('/api/users/update-password', async ({ request }) => {
+    try {
+      const requestBody = (await request.json()) as UpdatePasswordPayload;
+      const token = request.headers
+        .get('Authorization')
+        ?.replace('Bearer ', '');
+
+      if (!token) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: 'Unauthorized',
+          },
+          { status: 401 }
+        );
+      }
+
+      const decoded = jwtDecode<{ email: string }>(token);
+
+      const existingUser = await dbOps.getByEmail('users', decoded.email);
+
+      if (!existingUser) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: 'User not found',
+          },
+          { status: 404 }
+        );
+      }
+
+      const isPasswordValid = await bcrypt.compare(
+        requestBody.password,
+        existingUser.password!
+      );
+
+      if (!isPasswordValid) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: 'Current password is incorrect',
+          },
+          { status: 400 }
+        );
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(requestBody.newPassword, 10);
+
+      // Update image in IndexedDB
+      await dbOps.updateByEmail('users', decoded.email, {
+        password: hashedPassword,
+      });
+
+      return HttpResponse.json(
+        {
+          success: true,
+          message: 'Password updated successfully',
+        },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error('Update password error:', error);
+      return HttpResponse.json(
+        {
+          success: false,
+          message: 'Failed to update password',
         },
         { status: 500 }
       );

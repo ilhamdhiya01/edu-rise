@@ -91,7 +91,7 @@ const ImageUpload = memo(() => {
       await validateImage(file);
 
       // Upload image
-      handleUpdateUserImage(file);
+      await handleUpdateUserImage(file);
     } catch (error) {
       setValidationError(error as string);
     }
