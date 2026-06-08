@@ -1,13 +1,21 @@
-import React from 'react';
-
 import Icon from '@/components/ui/icon';
 import Input from '@/components/ui/input';
 
-const CourseHeader = () => {
+interface CourseHeaderProps {
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
+  totalCategories: number;
+}
+
+const CourseHeader = ({
+  searchQuery,
+  onSearchChange,
+  totalCategories,
+}: CourseHeaderProps) => {
   return (
     <>
       <h1 className="text-2xl font-semibold text-neutral-900 md:text-3xl">
-        Daftar kursus (6)
+        Daftar kursus ({totalCategories})
       </h1>
       <div className="flex items-center justify-between">
         <div className="bg-primary-50 flex w-full max-w-xs items-center justify-between rounded-lg px-4 py-3">
@@ -24,9 +32,9 @@ const CourseHeader = () => {
         <div className="w-full md:max-w-md">
           <Input
             type="search"
-            placeholder="UI/UX"
-            //   value={searchQuery}
-            //   onChange={handleSearchChange}
+            placeholder="Cari kursus..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
             prefix={{
               icon: 'TbSearch',
             }}

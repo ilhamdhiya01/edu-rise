@@ -4,13 +4,7 @@ import classNames from 'classnames';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import Icon, { IconProps } from '@/components/ui/icon';
-
-/**
- * @description Filter sidebar component for course filtering
- * @param {Object} filters - Available filter options
- * @param {Function} onFilterChange - Callback when filter selection changes
- * @returns {JSX.Element} Filter sidebar component
- */
+import { SubCategory } from '@/mocks/mockData';
 
 export interface FilterCategory {
   id: string;
@@ -20,7 +14,7 @@ export interface FilterCategory {
   subcategories?: FilterSubcategory[];
 }
 
-export interface FilterSubcategory {
+export interface FilterSubcategory extends SubCategory {
   id: string;
   name: string;
   count: number;
@@ -122,7 +116,7 @@ const FilterSidebar = React.memo<FilterSidebarProps>(
                       <div className="flex flex-col gap-1 border-t border-neutral-200">
                         {category.subcategories.map((subcategory) => {
                           const isSelected = selectedFilters.includes(
-                            subcategory.id
+                            subcategory.slug
                           );
 
                           return (
@@ -135,7 +129,7 @@ const FilterSidebar = React.memo<FilterSidebarProps>(
                                   type="checkbox"
                                   checked={isSelected}
                                   onChange={() =>
-                                    handleFilterToggle(subcategory.id)
+                                    handleFilterToggle(subcategory.slug)
                                   }
                                   className="text-primary-600 focus:ring-primary-200 h-4 w-4 rounded border-neutral-300 focus:ring-2 focus:ring-offset-0"
                                 />

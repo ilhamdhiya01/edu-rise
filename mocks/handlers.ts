@@ -13,6 +13,9 @@ import {
 } from '@/lib/types/profile.types';
 import { API_AUTH_LOGIN, API_AUTH_REGISTER, API_AUTH_USERS } from '@/routes';
 
+import { mockCourses } from './mockCourses';
+import { mockCategories } from './mockData';
+
 export const handlers = [
   // Mencegat HTTP POST ke '/api/auth/login'
   http.post(API_AUTH_LOGIN, async ({ request }) => {
@@ -527,5 +530,51 @@ export const handlers = [
         { status: 500 }
       );
     }
+  }),
+
+  // Mencegat HTTP GET ke '/api/categories'
+  http.get('/api/categories', async ({ request }) => {
+    const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+      return HttpResponse.json(
+        {
+          success: false,
+          message: 'Unauthorized',
+        },
+        { status: 401 }
+      );
+    }
+    return HttpResponse.json(
+      {
+        success: true,
+        data: mockCategories,
+        message: 'Categories retrieved successfully',
+      },
+      { status: 200 }
+    );
+  }),
+
+  // Mencegat HTTP GET ke '/api/courses'
+  http.get('/api/courses', async ({ request }) => {
+    const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+      return HttpResponse.json(
+        {
+          success: false,
+          message: 'Unauthorized',
+        },
+        { status: 401 }
+      );
+    }
+    return HttpResponse.json(
+      {
+        success: true,
+        data: mockCourses, // ← Ganti dari mockCategories ke mockCourses
+        message: 'Courses retrieved successfully', // ← Update message
+      },
+      { status: 200 }
+    );
   }),
 ];

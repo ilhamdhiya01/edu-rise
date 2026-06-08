@@ -2,6 +2,7 @@ import Image from 'next/image';
 import React from 'react';
 
 import Button from '@/components/ui/button';
+import { Course } from '@/mocks/mockCourses';
 
 /**
  * @description Course card component to display individual course information
@@ -9,13 +10,13 @@ import Button from '@/components/ui/button';
  * @returns {JSX.Element} Course card component
  */
 
-export interface Course {
-  id: string;
-  title: string;
-  subtitle: string;
-  image: string;
-  category: string;
-}
+// export interface Course {
+//   id: string;
+//   title: string;
+//   subtitle: string;
+//   image: string;
+//   category: string;
+// }
 
 interface CourseCardProps {
   course: Course;
@@ -30,7 +31,7 @@ const CourseCard = React.memo<CourseCardProps>(
         {/* Course Image */}
         <div className="relative aspect-video w-full overflow-hidden bg-neutral-100">
           <Image
-            src={course.image}
+            src={course.imageUrl}
             alt={course.title}
             fill
             className="object-cover"
@@ -42,7 +43,7 @@ const CourseCard = React.memo<CourseCardProps>(
         <div className="flex flex-1 flex-col gap-3 p-4">
           {/* Category Badge */}
           <span className="bg-primary-100 text-primary-700 inline-flex w-fit rounded px-2 py-1 text-xs font-medium">
-            {course.category}
+            {course.categoryName}
           </span>
 
           {/* Course Title & Subtitle */}
@@ -51,7 +52,7 @@ const CourseCard = React.memo<CourseCardProps>(
               {course.title}
             </h3>
             <p className="line-clamp-1 text-xs text-neutral-600 md:text-sm">
-              {course.subtitle}
+              {course.description}
             </p>
           </div>
 

@@ -1,5 +1,3 @@
-import { rest } from 'lodash';
-
 import axiosInstance from '@/lib/axios';
 import { fileToDataURL } from '@/lib/helpers';
 import { ApiResponse } from '@/lib/types/api.types';
