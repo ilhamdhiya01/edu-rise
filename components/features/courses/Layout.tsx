@@ -1,25 +1,17 @@
-'use client';
-
 import React, { useCallback, useMemo, useState } from 'react';
 
-import CourseCard, { Course } from '@/components/features/courses/CourseCard';
-import FilterSidebar, {
-  FilterCategory,
-} from '@/components/features/courses/FilterSidebar';
-import Layout from '@/components/features/courses/Layout';
+import Icon from '@/components/ui/icon';
 import Input from '@/components/ui/input';
 
-/**
- * @description Courses page component with filtering and search functionality
- * @returns {JSX.Element} Courses page
- */
+import CourseCard, { Course } from './CourseCard';
+import CourseHeader from './CourseHeader';
+import FilterSidebar, { FilterCategory } from './FilterSidebar';
 
-// Mock data - replace with actual API call
 const MOCK_CATEGORIES: FilterCategory[] = [
   {
     id: 'pemrograman',
     name: 'Pemrograman',
-    icon: 'TbCode',
+    icon: 'TbCpu',
     count: 1345,
     subcategories: [
       { id: 'pemrograman-website', name: 'Pemrograman website', count: 574 },
@@ -34,14 +26,26 @@ const MOCK_CATEGORIES: FilterCategory[] = [
     name: 'Bisnis',
     icon: 'TbBriefcase',
     count: 850,
-    subcategories: [],
+    subcategories: [
+      { id: 'pemrograman-website', name: 'Pemrograman website', count: 574 },
+      { id: 'data-science', name: 'Data science', count: 568 },
+      { id: 'pemrograman-mobile', name: 'pemrograman mobile', count: 1345 },
+      { id: 'framer', name: 'Framer', count: 558 },
+      { id: 'webflow', name: 'Webflow', count: 124 },
+    ],
   },
   {
     id: 'keuangan',
     name: 'Keuangan',
     icon: 'TbCoin',
     count: 420,
-    subcategories: [],
+    subcategories: [
+      { id: 'pemrograman-website', name: 'Pemrograman website', count: 574 },
+      { id: 'data-science', name: 'Data science', count: 568 },
+      { id: 'pemrograman-mobile', name: 'pemrograman mobile', count: 1345 },
+      { id: 'framer', name: 'Framer', count: 558 },
+      { id: 'webflow', name: 'Webflow', count: 124 },
+    ],
   },
   {
     id: 'desain',
@@ -111,7 +115,7 @@ const MOCK_COURSES: Course[] = [
   },
 ];
 
-const CoursesPage = () => {
+const Layout = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<string[]>([
     'pemrograman-mobile',
@@ -161,81 +165,42 @@ const CoursesPage = () => {
     },
     []
   );
-
   return (
-    // <div className="flex min-h-screen flex-col gap-6">
-    //   {/* Page Header */}
-    //   <div className="flex flex-col gap-4">
-    //     <h1 className="text-2xl font-bold text-neutral-900 md:text-3xl">
-    //       Daftar kursus ({MOCK_COURSES.length})
-    //     </h1>
-
-    //     {/* Search Bar */}
-    //     <div className="w-full md:max-w-md">
-    //       <Input
-    //         type="search"
-    //         placeholder="UI/UX"
-    //         value={searchQuery}
-    //         onChange={handleSearchChange}
-    //         prefix={{
-    //           icon: 'TbSearch',
-    //         }}
-    //         fullWidth
-    //       />
-    //     </div>
-    //   </div>
-
-    //   {/* Main Content */}
-    //   <div className="flex flex-col gap-6 lg:flex-row">
-    //     {/* Filter Sidebar - Hidden on mobile, shown in drawer or modal */}
-    //     <div className="hidden lg:block">
-    //       <FilterSidebar
-    //         categories={MOCK_CATEGORIES}
-    //         selectedFilters={selectedFilters}
-    //         onFilterChange={handleFilterChange}
-    //         totalCourses={filteredCourses.length}
-    //       />
-    //     </div>
-
-    //     {/* Mobile Filter Button */}
-    //     <div className="lg:hidden">
-    //       <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50">
-    //         <span>Filter</span>
-    //         {selectedFilters.length > 0 && (
-    //           <span className="bg-primary-600 rounded-full px-2 py-0.5 text-xs text-white">
-    //             {selectedFilters.length}
-    //           </span>
-    //         )}
-    //       </button>
-    //     </div>
-
-    //     {/* Course Grid */}
-    //     <div className="flex-1">
-    //       {filteredCourses.length > 0 ? (
-    //         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-    //           {filteredCourses.map((course) => (
-    //             <CourseCard
-    //               key={course.id}
-    //               course={course}
-    //               onViewDetail={handleViewDetail}
-    //               onAddCourse={handleAddCourse}
-    //             />
-    //           ))}
-    //         </div>
-    //       ) : (
-    //         <div className="flex flex-col items-center justify-center py-12">
-    //           <p className="text-neutral-600">
-    //             Tidak ada kursus yang ditemukan
-    //           </p>
-    //         </div>
-    //       )}
-    //     </div>
-    //   </div>
-    // </div>
-    <>
-      <Layout />
-    </>
+    <div className="flex min-h-screen flex-col gap-6">
+      <CourseHeader />
+      {/* main content */}
+      <div className="grid grid-cols-4 gap-6">
+        <div className="col-span-1">
+          <FilterSidebar
+            categories={MOCK_CATEGORIES}
+            selectedFilters={selectedFilters}
+            onFilterChange={handleFilterChange}
+            totalCourses={filteredCourses.length}
+          />
+        </div>
+        <div className="col-span-3 flex-1">
+          {filteredCourses.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+              {filteredCourses.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  onViewDetail={handleViewDetail}
+                  onAddCourse={handleAddCourse}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12">
+              <p className="text-neutral-600">
+                Tidak ada kursus yang ditemukan
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default CoursesPage;
+export default Layout;
