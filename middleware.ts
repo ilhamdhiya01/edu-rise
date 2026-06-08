@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { authRoutes, LOGIN_PATH, privateRoutes, ROOT_PATH } from './routes';
 
-export const proxy = (request: NextRequest) => {
+export const middleware = (request: NextRequest) => {
   const { nextUrl, url, cookies } = request;
 
   const token = cookies.get('token')?.value;

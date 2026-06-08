@@ -6,6 +6,8 @@ import { createMockJWT } from '@/lib/helpers';
 import { dbOps } from '@/lib/index-db';
 import { LoginRequest, RegisterRequest, User } from '@/lib/types/auth.types';
 import {
+  NotificationEmailRequest,
+  NotificationWhatsappRequest,
   UpdatePasswordPayload,
   UserDataRequest,
 } from '@/lib/types/profile.types';
@@ -58,8 +60,8 @@ export const handlers = [
         position: existingUser.position,
       };
 
-      // generate token
-      const token = createMockJWT(userProfile, requestBody.rememberMe || false);
+      // generate token (cookie is persisted on the client, like a real API)
+      const token = createMockJWT(userProfile);
 
       return HttpResponse.json(
         {
@@ -83,58 +85,6 @@ export const handlers = [
     }
   }),
 
-  // Mencegat HTTP GET ke '/api/auth/users'
-  http.get(`${API_AUTH_USERS}`, async ({ request }) => {
-    try {
-      const url = new URL(request.url);
-      const email = url.searchParams.get('email');
-
-      if (!email) {
-        return HttpResponse.json(
-          {
-            success: false,
-            message: 'Email is required',
-          },
-          { status: 400 }
-        );
-      }
-
-      const user: User = await dbOps.getByEmail('users', email);
-
-      if (!user) {
-        return HttpResponse.json(
-          {
-            success: false,
-            message: 'User not found',
-          },
-          { status: 404 }
-        );
-      }
-
-      const { password: _, ...userData } = user;
-
-      const userDataWithoutPassword: Omit<User, 'password'> = {
-        ...userData,
-      };
-
-      return HttpResponse.json(
-        {
-          success: true,
-          data: userDataWithoutPassword,
-        },
-        { status: 200 }
-      );
-    } catch {
-      return HttpResponse.json(
-        {
-          success: false,
-          message: 'Terjadi kesalahan saat mendapatkan user',
-        },
-        { status: 500 }
-      );
-    }
-  }),
-
   // Mencegat HTTP POST ke '/api/auth/register'
   http.post(API_AUTH_REGISTER, async ({ request }) => {
     try {
@@ -142,6 +92,7 @@ export const handlers = [
 
       // Check if user already exists
       const existingUser = await dbOps.getByEmail('users', requestBody.email);
+
       if (existingUser) {
         return HttpResponse.json(
           {
@@ -195,6 +146,58 @@ export const handlers = [
         {
           success: false,
           message: 'Terjadi kesalahan saat register',
+        },
+        { status: 500 }
+      );
+    }
+  }),
+
+  // Mencegat HTTP GET ke '/api/auth/users'
+  http.get(`${API_AUTH_USERS}`, async ({ request }) => {
+    try {
+      const url = new URL(request.url);
+      const email = url.searchParams.get('email');
+
+      if (!email) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: 'Email is required',
+          },
+          { status: 400 }
+        );
+      }
+
+      const user: User = await dbOps.getByEmail('users', email);
+
+      if (!user) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: 'User not found',
+          },
+          { status: 404 }
+        );
+      }
+
+      const { password: _, ...userData } = user;
+
+      const userDataWithoutPassword: Omit<User, 'password'> = {
+        ...userData,
+      };
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: userDataWithoutPassword,
+        },
+        { status: 200 }
+      );
+    } catch {
+      return HttpResponse.json(
+        {
+          success: false,
+          message: 'Terjadi kesalahan saat mendapatkan user',
         },
         { status: 500 }
       );
@@ -282,9 +285,9 @@ export const handlers = [
       }
 
       const decoded = jwtDecode<{ email: string }>(token);
-      const user = await dbOps.getByEmail('users', decoded.email);
+      const existingUser = await dbOps.getByEmail('users', decoded.email);
 
-      if (!user) {
+      if (!existingUser) {
         return HttpResponse.json(
           {
             success: false,
@@ -300,7 +303,7 @@ export const handlers = [
       });
 
       const { password: _, ...userData } = {
-        ...user,
+        ...existingUser,
         image: requestBody.image,
       };
 
@@ -378,9 +381,12 @@ export const handlers = [
         password: hashedPassword,
       });
 
+      const { password: _, ...userData } = existingUser;
+
       return HttpResponse.json(
         {
           success: true,
+          data: userData,
           message: 'Password updated successfully',
         },
         { status: 200 }
@@ -391,6 +397,132 @@ export const handlers = [
         {
           success: false,
           message: 'Failed to update password',
+        },
+        { status: 500 }
+      );
+    }
+  }),
+
+  http.put('/api/users/update-notification-email', async ({ request }) => {
+    try {
+      const requestBody = (await request.json()) as NotificationEmailRequest;
+      const token = request.headers
+        .get('Authorization')
+        ?.replace('Bearer ', '');
+
+      if (!token) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: 'Unauthorized',
+          },
+          { status: 401 }
+        );
+      }
+
+      const decoded = jwtDecode<{ email: string }>(token);
+
+      const existingUser: User = await dbOps.getByEmail('users', decoded.email);
+
+      if (!existingUser) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: 'User not found',
+          },
+          { status: 404 }
+        );
+      }
+
+      const updatedUser = {
+        ...existingUser,
+        isNotificationEmail: requestBody.isNotificationEmail,
+        isWeeklyReport: requestBody.isWeeklyReport,
+        isCertificateAchievement: requestBody.isCertificateAchievement,
+        isNewCourseRecommendation: requestBody.isNewCourseRecommendation,
+      };
+
+      // Update image in IndexedDB
+      await dbOps.updateByEmail('users', decoded.email, updatedUser);
+
+      const { password: _, ...userData } = updatedUser;
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: userData,
+          message: 'Notification email settings updated successfully',
+        },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error('Update notification email error:', error);
+      return HttpResponse.json(
+        {
+          success: false,
+          message: 'Failed to update notification email settings',
+        },
+        { status: 500 }
+      );
+    }
+  }),
+
+  http.put('/api/users/update-notification-whatsapp', async ({ request }) => {
+    try {
+      const requestBody = (await request.json()) as NotificationWhatsappRequest;
+      const token = request.headers
+        .get('Authorization')
+        ?.replace('Bearer ', '');
+
+      if (!token) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: 'Unauthorized',
+          },
+          { status: 401 }
+        );
+      }
+
+      const decoded = jwtDecode<{ email: string }>(token);
+
+      const existingUser: User = await dbOps.getByEmail('users', decoded.email);
+
+      if (!existingUser) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: 'User not found',
+          },
+          { status: 404 }
+        );
+      }
+
+      const updatedUser = {
+        ...existingUser,
+        isNotificationWhatsapp: requestBody.isNotificationWhatsapp,
+        isMotivationalMessage: requestBody.isMotivationalMessage,
+      };
+
+      // Update image in IndexedDB
+      await dbOps.updateByEmail('users', decoded.email, updatedUser);
+
+      const { password: _, ...userData } = updatedUser;
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: userData,
+          message: 'Notification whatsapp settings updated successfully',
+        },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error('Update notification whatsapp error:', error);
+      return HttpResponse.json(
+        {
+          success: false,
+          message: 'Failed to update notification whatsapp settings',
         },
         { status: 500 }
       );

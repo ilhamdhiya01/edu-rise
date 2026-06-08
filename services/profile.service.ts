@@ -5,6 +5,8 @@ import { fileToDataURL } from '@/lib/helpers';
 import { ApiResponse } from '@/lib/types/api.types';
 import { User } from '@/lib/types/auth.types';
 import {
+  NotificationEmailRequest,
+  NotificationWhatsappRequest,
   UpdatePasswordPayload,
   UserDataRequest,
 } from '@/lib/types/profile.types';
@@ -39,4 +41,32 @@ export const updatePassword = async (
   const res = await axiosInstance.put('api/users/update-password', payload);
 
   return res.data;
+};
+
+export const updateNotificationEmail = async (
+  data: NotificationEmailRequest
+): Promise<ApiResponse<User>> => {
+  try {
+    const res = await axiosInstance.put(
+      '/api/users/update-notification-email',
+      data
+    );
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateNotificationWhatsapp = async (
+  data: NotificationWhatsappRequest
+): Promise<ApiResponse<User>> => {
+  try {
+    const res = await axiosInstance.put(
+      '/api/users/update-notification-whatsapp',
+      data
+    );
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
 };

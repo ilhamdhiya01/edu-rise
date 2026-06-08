@@ -21,13 +21,26 @@ export type User = {
   image?: string;
   position?: string;
   phoneNumber?: string;
+  isNotificationEmail?: boolean;
+  isWeeklyReport?: boolean;
+  isCertificateAchievement?: boolean;
+  isNewCourseRecommendation?: boolean;
+  isNotificationWhatsapp?: boolean;
+  isMotivationalMessage?: boolean;
 };
 
-export type AuthResponse = {
+export type AuthUser = {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
+  image?: string;
+  position?: string;
+};
+
+export type AuthResponse = {
+  user: AuthUser;
+  token: string;
 };
 
 export type ErrorResponse = {

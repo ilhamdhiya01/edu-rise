@@ -34,9 +34,13 @@ const LoginForm = memo(() => {
     defaultValues: DEFAULT_VALUES,
   });
 
-  const onSubmit = (data: LoginInput) => {
-    handleLogin({ ...data, rememberMe: isRememberMe });
-    reset(DEFAULT_VALUES);
+  const onSubmit = async (data: LoginInput) => {
+    try {
+      await handleLogin({ ...data, rememberMe: isRememberMe });
+      reset(DEFAULT_VALUES);
+    } catch (error) {
+      console.error('Login error:', error);
+    }
   };
 
   return (

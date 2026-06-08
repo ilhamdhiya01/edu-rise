@@ -1,5 +1,7 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { memo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -7,6 +9,11 @@ import { Controller, useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import Switch from '@/components/ui/switch';
+import { getUserFromToken } from '@/lib/helpers';
+import { useUpdateNotificationEmail } from '@/lib/hooks/profile';
+import { NotificationEmailInput } from '@/lib/types/profile.types';
+import { notificationEmailSchema } from '@/schemas/profile.schema';
+import { getUserByEmail } from '@/services/auth.service';
 
 const DEFAULT_VALUES = {
   isNotificationEmail: false,
@@ -16,16 +23,40 @@ const DEFAULT_VALUES = {
 } as const;
 
 const NotificationEmailSetting = memo(() => {
+  const userToken = getUserFromToken();
+
+  // ✅ Granular selector: only re-renders when email notification fields change.
+  const { data: notifData } = useQuery({
+    queryKey: ['currentUser', userToken?.email],
+    queryFn: () => getUserByEmail(userToken?.email),
+    enabled: !!userToken?.email,
+    select: (res) => ({
+      isNotificationEmail: res?.data?.isNotificationEmail ?? false,
+      isWeeklyReport: res?.data?.isWeeklyReport ?? false,
+      isCertificateAchievement: res?.data?.isCertificateAchievement ?? false,
+      isNewCourseRecommendation: res?.data?.isNewCourseRecommendation ?? false,
+    }),
+  });
+
+  const { handleUpdateNotificationEmail, isUpdatingNotificationEmail } =
+    useUpdateNotificationEmail();
+
   const {
     handleSubmit,
     control,
-    formState: { errors },
-  } = useForm<typeof DEFAULT_VALUES>({
+    formState: { isDirty },
+  } = useForm<NotificationEmailInput>({
+    resolver: zodResolver(notificationEmailSchema),
     defaultValues: DEFAULT_VALUES,
+    values: notifData,
   });
 
-  const onSubmit = (data: typeof DEFAULT_VALUES) => {
-    console.log(data);
+  const onSubmit = async (data: NotificationEmailInput) => {
+    try {
+      await handleUpdateNotificationEmail(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -109,7 +140,12 @@ const NotificationEmailSetting = memo(() => {
         )}
       />
 
-      <Button type="submit" label="Simpan Pengaturan" />
+      <Button
+        type="submit"
+        label="Simpan Pengaturan"
+        isLoading={isUpdatingNotificationEmail}
+        disabled={!isDirty}
+      />
     </form>
   );
 });

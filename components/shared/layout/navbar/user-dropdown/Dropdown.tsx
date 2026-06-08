@@ -12,6 +12,8 @@ interface DropdownProps {
 
 const Dropdown = ({ isOpen, onLogout }: DropdownProps) => {
   const { user } = useUser();
+
+  console.log('user form navbar', user);
   return (
     <div
       className={classNames(

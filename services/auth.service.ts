@@ -35,7 +35,6 @@ export const register = async (
 ): Promise<ApiResponse<AuthResponse>> => {
   try {
     const res = await axiosInstance.post(API_AUTH_REGISTER, payload);
-
     return res.data;
   } catch (error) {
     throw error;

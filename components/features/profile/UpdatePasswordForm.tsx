@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
-import { useProfile } from '@/lib/hooks/useProfile';
+import { useUpdatePassword } from '@/lib/hooks/profile';
 import { UpdatePasswordInput } from '@/lib/types/profile.types';
 import { updatePasswordSchema } from '@/schemas/profile.schema';
 
@@ -26,7 +26,7 @@ const DEFAULT_VALUES = {
 } as const;
 
 const UpdatePasswordForm = memo(() => {
-  const { handleUpdatePassword, isUpdatingPassword } = useProfile();
+  const { handleUpdatePassword, isUpdatingPassword } = useUpdatePassword();
   const [isPasswordVisible, setIsPasswordVisible] = useState<PasswordVisible>({
     password: {
       icon: 'TbEye',

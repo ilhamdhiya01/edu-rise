@@ -17,7 +17,9 @@ axiosInstance.interceptors.request.use(
     const token = document.cookie
       .split('; ')
       .find((row) => row.startsWith('token='))
-      ?.split('=')[1];
+      ?.split('=')
+      .slice(1)
+      .join('=');
 
     // Attach token to Authorization header
     if (token) {

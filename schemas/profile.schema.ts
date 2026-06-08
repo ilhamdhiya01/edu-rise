@@ -35,3 +35,15 @@ export const updatePasswordSchema = z
       });
     }
   });
+
+export const notificationEmailSchema = z.object({
+  isNotificationEmail: z.boolean(),
+  isWeeklyReport: z.boolean(),
+  isCertificateAchievement: z.boolean(),
+  isNewCourseRecommendation: z.boolean(),
+});
+
+export const notificationWhatsappSchema = z.object({
+  isNotificationWhatsapp: z.boolean(),
+  isMotivationalMessage: z.boolean(),
+});

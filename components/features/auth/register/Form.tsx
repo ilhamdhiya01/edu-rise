@@ -34,8 +34,12 @@ const RegisterForm = memo(() => {
     defaultValues: DEFAULT_VALUES,
   });
 
-  const onSubmit = (data: RegisterInput) => {
-    handleRegister(data);
+  const onSubmit = async (data: RegisterInput) => {
+    try {
+      await handleRegister(data);
+    } catch (error) {
+      console.error('Register error:', error);
+    }
   };
 
   return (

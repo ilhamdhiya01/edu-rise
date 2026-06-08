@@ -1,12 +1,14 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import Image from 'next/image';
 import { ChangeEvent, memo, useRef, useState } from 'react';
 
 import Icon from '@/components/ui/icon';
-import { useProfile } from '@/lib/hooks/useProfile';
-import { useUser } from '@/lib/hooks/useUser';
+import { getUserFromToken } from '@/lib/helpers';
+import { useUpdateUserImage } from '@/lib/hooks/profile';
+import { getUserByEmail } from '@/services/auth.service';
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 
@@ -39,8 +41,17 @@ const ImageSkeleton = () => {
 };
 
 const ImageUpload = memo(() => {
-  const { user, isLoading } = useUser();
-  const { handleUpdateUserImage, isUpdatingImage } = useProfile();
+  const userToken = getUserFromToken();
+
+  // ✅ Granular selector: only re-renders when the image field changes.
+  const { data: image, isLoading } = useQuery({
+    queryKey: ['currentUser', userToken?.email],
+    queryFn: () => getUserByEmail(userToken?.email),
+    enabled: !!userToken?.email,
+    select: (res) => res?.data?.image ?? null,
+  });
+
+  const { handleUpdateUserImage, isUpdatingImage } = useUpdateUserImage();
   const [validationError, setValidationError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -125,7 +136,7 @@ const ImageUpload = memo(() => {
       <div className="relative aspect-square w-full max-w-[280px] overflow-hidden rounded-lg">
         {/* Profile Image */}
         <Image
-          src={user?.image || '/images/default.webp'}
+          src={image || '/images/default.webp'}
           alt="Profile"
           fill
           className="object-cover"

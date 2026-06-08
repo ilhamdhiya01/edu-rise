@@ -3,14 +3,21 @@ import { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
 
 import {
+  updateNotificationEmail,
+  updateNotificationWhatsapp,
   updatePassword,
   updateUserData,
   updateUserImage,
 } from '@/services/profile.service';
 
 import { queryClient } from '../tanstack-query';
-import { ErrorResponse, RegisterRequest, User } from '../types/auth.types';
-import { UpdatePasswordPayload, UserDataRequest } from '../types/profile.types';
+import { ErrorResponse, User } from '../types/auth.types';
+import {
+  NotificationEmailRequest,
+  NotificationWhatsappRequest,
+  UpdatePasswordPayload,
+  UserDataRequest,
+} from '../types/profile.types';
 import { useUser } from './useUser';
 
 export const useProfile = () => {
@@ -65,7 +72,7 @@ export const useProfile = () => {
           data: updatedUser,
         });
 
-        toast.success(response.message || 'User data updated successfully');
+        toast.success(response.message);
       }
     },
 
@@ -143,7 +150,7 @@ export const useProfile = () => {
         data: updatedUser,
       });
 
-      toast.success(response.message || 'Profile image updated successfully');
+      toast.success(response.message);
     },
 
     // Rollback to previous data
@@ -183,6 +190,150 @@ export const useProfile = () => {
     },
   });
 
+  const notificationEmailMutation = useMutation({
+    mutationFn: (payload: NotificationEmailRequest) =>
+      updateNotificationEmail(payload),
+
+    // OPTIMISTIC UPDATE - Update UI immediately
+    onMutate: async (newData: NotificationEmailRequest) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: ['currentUser', userToken?.email],
+      });
+
+      // Snapshot previous value for rollback
+      const previousUser = queryClient.getQueryData<{
+        success: boolean;
+        data: User;
+      }>(['currentUser', userToken?.email]);
+
+      // Optimistically update cache
+      if (previousUser?.data) {
+        const optimisticUser = {
+          ...previousUser.data,
+          ...newData,
+        };
+
+        // Update React Query cache
+        queryClient.setQueryData(['currentUser', userToken?.email], {
+          success: true,
+          data: optimisticUser,
+        });
+
+        // Update Zustand store
+        setUser(optimisticUser);
+      }
+
+      // Return context for rollback
+      return { previousUser };
+    },
+
+    // SUCCESS - Confirm with server data
+    onSuccess: (response, _variables, context) => {
+      if (response.success) {
+        const updatedUser = response.data as User;
+
+        // Update with actual server data
+        setUser(updatedUser);
+        queryClient.setQueryData(['currentUser', userToken?.email], {
+          success: true,
+          data: updatedUser,
+        });
+
+        toast.success(response.message);
+      }
+    },
+
+    // Rollback to previous data
+    onError: (error: AxiosError<ErrorResponse>, _variables, context) => {
+      // Rollback cache and store
+      if (context?.previousUser) {
+        queryClient.setQueryData(
+          ['currentUser', userToken?.email],
+          context.previousUser
+        );
+
+        if (context.previousUser.data) {
+          setUser(context.previousUser.data);
+        }
+      }
+
+      toast.error(error.response?.data?.message || error.message);
+    },
+  });
+
+  const notificationWhatsappMutation = useMutation({
+    mutationFn: (payload: NotificationWhatsappRequest) =>
+      updateNotificationWhatsapp(payload),
+
+    // OPTIMISTIC UPDATE - Update UI immediately
+    onMutate: async (newData: NotificationWhatsappRequest) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: ['currentUser', userToken?.email],
+      });
+
+      // Snapshot previous value for rollback
+      const previousUser = queryClient.getQueryData<{
+        success: boolean;
+        data: User;
+      }>(['currentUser', userToken?.email]);
+
+      // Optimistically update cache
+      if (previousUser?.data) {
+        const optimisticUser = {
+          ...previousUser.data,
+          ...newData,
+        };
+
+        // Update React Query cache
+        queryClient.setQueryData(['currentUser', userToken?.email], {
+          success: true,
+          data: optimisticUser,
+        });
+
+        // Update Zustand store
+        setUser(optimisticUser);
+      }
+
+      // Return context for rollback
+      return { previousUser };
+    },
+
+    // SUCCESS - Confirm with server data
+    onSuccess: (response, _variables, context) => {
+      if (response.success) {
+        const updatedUser = response.data as User;
+
+        // Update with actual server data
+        setUser(updatedUser);
+        queryClient.setQueryData(['currentUser', userToken?.email], {
+          success: true,
+          data: updatedUser,
+        });
+
+        toast.success(response.message);
+      }
+    },
+
+    // Rollback to previous data
+    onError: (error: AxiosError<ErrorResponse>, _variables, context) => {
+      // Rollback cache and store
+      if (context?.previousUser) {
+        queryClient.setQueryData(
+          ['currentUser', userToken?.email],
+          context.previousUser
+        );
+
+        if (context.previousUser.data) {
+          setUser(context.previousUser.data);
+        }
+      }
+
+      toast.error(error.response?.data?.message || error.message);
+    },
+  });
+
   return {
     handleUpdateUserData: userDataMutation.mutateAsync,
     isUpdating: userDataMutation.isPending,
@@ -198,5 +349,15 @@ export const useProfile = () => {
     isUpdatingPassword: updatePasswordMutation.isPending,
     updatePasswordError: updatePasswordMutation.error,
     isPasswordSuccess: updatePasswordMutation.isSuccess,
+
+    handleUpdateNotificationEmail: notificationEmailMutation.mutateAsync,
+    isUpdatingNotificationEmail: notificationEmailMutation.isPending,
+    updateNotificationEmailError: notificationEmailMutation.error,
+    isNotificationEmailSuccess: notificationEmailMutation.isSuccess,
+
+    handleUpdateNotificationWhatsapp: notificationWhatsappMutation.mutateAsync,
+    isUpdatingNotificationWhatsapp: notificationWhatsappMutation.isPending,
+    updateNotificationWhatsappError: notificationWhatsappMutation.error,
+    isNotificationWhatsappSuccess: notificationWhatsappMutation.isSuccess,
   };
 };
