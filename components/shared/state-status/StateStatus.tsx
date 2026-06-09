@@ -62,23 +62,14 @@ const StateStatus = ({
 
       {/* Text */}
       <div className="flex flex-col gap-2">
-        <h2 className="text-center text-2xl font-semibold text-neutral-600">
+        <h2 className="text-center text-lg font-semibold text-neutral-600 md:text-2xl">
           {title}
         </h2>
         <p className="text-center text-neutral-600">{description}</p>
       </div>
 
       {/* Action Button */}
-      {action && (
-        <Button
-          label={action.label}
-          onClick={action.onClick}
-          //   variant={
-          //     type === 'error' || type === 'offline' ? 'contained' : 'outlined'
-          //   }
-          //   color={type === 'error' || type === 'offline' ? 'primary' : 'neutral'}
-        />
-      )}
+      {action && <Button label={action.label} onClick={action.onClick} />}
     </div>
   );
 };

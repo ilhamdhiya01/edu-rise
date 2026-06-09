@@ -6,7 +6,7 @@ const DashboardPage = () => {
   return (
     <div className="flex flex-col gap-10">
       <SectionContent title="Dashboard">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="col-span-1">
             <MetricCardItem
               icon="TbPlayerPlay"

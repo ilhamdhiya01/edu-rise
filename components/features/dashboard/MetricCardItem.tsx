@@ -27,7 +27,7 @@ const MetricCardItem = React.memo(
       >
         <div
           className={classNames(
-            'flex size-15 items-center justify-center overflow-hidden rounded-full border bg-white',
+            'flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-white md:size-15',
             {
               'border-primary-400 text-primary-600': type === 'activeCourses',
               'border-tertiary-400 text-tertiary-600': type === 'courses',
