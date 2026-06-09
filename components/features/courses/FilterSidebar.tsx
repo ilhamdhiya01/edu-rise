@@ -29,17 +29,62 @@ interface FilterSidebarProps {
 
 const FilterSidebar = React.memo<FilterSidebarProps>(
   ({ categories, selectedFilters, onFilterChange, totalCourses }) => {
-    const [expandedCategories, setExpandedCategories] = useState<string[]>([
-      categories[0]?.id || '',
-    ]);
+    // Track manually toggled categories (both expanded and collapsed)
+    const [manuallyToggledCategories, setManuallyToggledCategories] = useState<{
+      expanded: string[];
+      collapsed: string[];
+    }>({ expanded: [], collapsed: [] });
 
-    const toggleCategory = useCallback((categoryId: string) => {
-      setExpandedCategories((prev) =>
-        prev.includes(categoryId)
-          ? prev.filter((id) => id !== categoryId)
-          : [...prev, categoryId]
-      );
-    }, []);
+    // Auto-expand categories that have selected subcategories
+    const expandedCategories = useMemo(() => {
+      const autoExpandedCategories = categories
+        .filter((cat) =>
+          cat.subcategories?.some((sub) => selectedFilters.includes(sub.slug))
+        )
+        .map((cat) => cat.id);
+
+      // Combine auto-expanded and manually expanded, exclude manually collapsed
+      const shouldExpand = new Set([
+        ...autoExpandedCategories,
+        ...manuallyToggledCategories.expanded,
+      ]);
+
+      // Remove explicitly collapsed categories
+      manuallyToggledCategories.collapsed.forEach((id) => {
+        shouldExpand.delete(id);
+      });
+
+      return Array.from(shouldExpand);
+    }, [selectedFilters, categories, manuallyToggledCategories]);
+
+    const toggleCategory = useCallback(
+      (categoryId: string) => {
+        setManuallyToggledCategories((prev) => {
+          const isCurrentlyExpanded = expandedCategories.includes(categoryId);
+
+          if (isCurrentlyExpanded) {
+            // Collapse it
+            return {
+              expanded: prev.expanded.filter((id) => id !== categoryId),
+              collapsed: [
+                ...prev.collapsed.filter((id) => id !== categoryId),
+                categoryId,
+              ],
+            };
+          } else {
+            // Expand it
+            return {
+              expanded: [
+                ...prev.expanded.filter((id) => id !== categoryId),
+                categoryId,
+              ],
+              collapsed: prev.collapsed.filter((id) => id !== categoryId),
+            };
+          }
+        });
+      },
+      [expandedCategories]
+    );
 
     const handleFilterToggle = useCallback(
       (filterId: string) => {
@@ -51,14 +96,21 @@ const FilterSidebar = React.memo<FilterSidebarProps>(
       [selectedFilters, onFilterChange]
     );
 
-    const selectedCount = useMemo(
-      () => selectedFilters.length,
-      [selectedFilters.length]
-    );
-
     return (
-      <aside className="flex w-full flex-col gap-4">
-        {/* Filter Categories */}
+      <aside className="sticky top-25 flex h-[calc(100vh-6rem)] w-full flex-col gap-4 self-start overflow-auto">
+        <div className="bg-primary-50 flex w-full max-w-xs items-center justify-between rounded-lg px-4 py-3">
+          <div className="flex items-center gap-2">
+            <Icon icon="TbFilter" size={18} className="text-primary-700" />
+            <span className="text-primary-700 text-sm font-semibold">
+              Filter
+            </span>
+          </div>
+          {selectedFilters.length > 0 && (
+            <span className="bg-primary-600 rounded-full px-2 py-0.5 text-xs font-medium text-white">
+              {selectedFilters.length}
+            </span>
+          )}
+        </div>
         <div className="flex flex-col divide-y divide-neutral-300 border-y border-neutral-200">
           {categories.map((category) => {
             const isExpanded = expandedCategories.includes(category.id);
@@ -72,15 +124,7 @@ const FilterSidebar = React.memo<FilterSidebarProps>(
                 >
                   <div className="flex items-center gap-2">
                     <Icon
-                      icon={
-                        category.icon as
-                          | 'TbCode'
-                          | 'TbBriefcase'
-                          | 'TbCoin'
-                          | 'TbPalette'
-                          | 'TbSpeakerphone'
-                          | 'TbCamera'
-                      }
+                      icon={category.icon}
                       size={20}
                       className={classNames('transition-colors', {
                         'text-primary-600': isExpanded,
@@ -121,7 +165,7 @@ const FilterSidebar = React.memo<FilterSidebarProps>(
 
                           return (
                             <label
-                              key={subcategory.id}
+                              key={subcategory.slug}
                               className="flex cursor-pointer items-center justify-between px-4 py-3 transition-colors hover:bg-neutral-50"
                             >
                               <div className="flex items-center gap-2">

@@ -2,13 +2,20 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
-import CourseHeader from '@/components/features/courses/CourseHeader';
-import FilterSidebar, {
+import {
+  Courses,
   FilterCategory,
-} from '@/components/features/courses/FilterSidebar';
-import ListCourse from '@/components/features/courses/ListCourse';
+  FilterSubcategory,
+} from '@/components/features/courses';
+import Input from '@/components/ui/input';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import { getCategories, getCourses } from '@/services/course.service';
 
@@ -39,6 +46,7 @@ const CoursesPage = () => {
           name: sub.name,
           count: 0,
           slug: sub.slug,
+          categoryId: sub.categoryId,
         })),
       })) as FilterCategory[],
   });
@@ -66,7 +74,7 @@ const CoursesPage = () => {
   const categoriesWithCount = useMemo(() => {
     return categories.map((cat) => ({
       ...cat,
-      subcategories: cat.subcategories?.map((sub) => ({
+      subcategories: cat.subcategories?.map((sub: FilterSubcategory) => ({
         ...sub,
         count: courses.filter((c) => c.subCategoryId === sub.id).length,
       })),
@@ -77,14 +85,14 @@ const CoursesPage = () => {
   const filteredCourses = useMemo(() => {
     let filtered = courses;
 
-    // 1. Apply category filters dulu (by subcategory)
+    // first apply by category selected
     if (selectedFilters.length > 0) {
       filtered = filtered.filter((course) =>
         selectedFilters.includes(course.subCategorySlug)
       );
     }
 
-    // Filter by search
+    // filter by search
     if (debouncedSearchQuery.trim()) {
       const query = debouncedSearchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -136,30 +144,54 @@ const CoursesPage = () => {
 
   return (
     <div className="flex min-h-screen flex-col gap-6">
-      <CourseHeader
-        totalCategories={categories.length}
-        searchQuery={searchQuery}
-        onSearchChange={(value) =>
-          handleSearchChange({
-            target: { value },
-          } as React.ChangeEvent<HTMLInputElement>)
-        }
-      />
+      <h1 className="text-2xl font-semibold text-neutral-900 md:text-3xl">
+        Daftar kursus ({categories.length})
+      </h1>
       <div className="grid grid-cols-4 gap-6">
         <div className="col-span-1">
-          <FilterSidebar
+          <Courses.FilterSidebar
             categories={categoriesWithCount}
             selectedFilters={selectedFilters}
             onFilterChange={handleFilterChange}
             totalCourses={filteredCourses.length}
           />
         </div>
-        <div className="col-span-3 flex-1">
-          <ListCourse filteredCourses={filteredCourses} />
+        <div className="col-span-3 flex flex-1 flex-col gap-4">
+          <div className="ml-auto w-full md:max-w-md">
+            <Input
+              type="search"
+              placeholder="Cari kursus..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              prefix={{
+                icon: 'TbSearch',
+              }}
+              fullWidth
+            />
+          </div>
+          <Courses.ListCourse
+            filteredCourses={filteredCourses}
+            isLoading={coursesLoading}
+            totalCourses={courses.length}
+          />
         </div>
       </div>
     </div>
   );
 };
 
-export default CoursesPage;
+const CoursesPageWrapper = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <CoursesPage />
+    </Suspense>
+  );
+};
+
+export default CoursesPageWrapper;

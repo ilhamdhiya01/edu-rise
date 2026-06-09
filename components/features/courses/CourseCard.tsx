@@ -4,20 +4,6 @@ import React from 'react';
 import Button from '@/components/ui/button';
 import { Course } from '@/mocks/mockCourses';
 
-/**
- * @description Course card component to display individual course information
- * @param {Object} course - Course data object
- * @returns {JSX.Element} Course card component
- */
-
-// export interface Course {
-//   id: string;
-//   title: string;
-//   subtitle: string;
-//   image: string;
-//   category: string;
-// }
-
 interface CourseCardProps {
   course: Course;
   onViewDetail: (courseId: string) => void;
@@ -28,7 +14,6 @@ const CourseCard = React.memo<CourseCardProps>(
   ({ course, onViewDetail, onAddCourse }) => {
     return (
       <div className="flex flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
-        {/* Course Image */}
         <div className="relative aspect-video w-full overflow-hidden bg-neutral-100">
           <Image
             src={course.imageUrl}
@@ -39,14 +24,11 @@ const CourseCard = React.memo<CourseCardProps>(
           />
         </div>
 
-        {/* Course Content */}
         <div className="flex flex-1 flex-col gap-3 p-4">
-          {/* Category Badge */}
           <span className="bg-primary-100 text-primary-700 inline-flex w-fit rounded px-2 py-1 text-xs font-medium">
             {course.categoryName}
           </span>
 
-          {/* Course Title & Subtitle */}
           <div className="flex flex-col gap-1">
             <h3 className="line-clamp-2 text-sm font-semibold text-neutral-900 md:text-base">
               {course.title}
@@ -56,7 +38,6 @@ const CourseCard = React.memo<CourseCardProps>(
             </p>
           </div>
 
-          {/* Action Buttons */}
           <div className="mt-auto flex flex-col gap-2">
             <Button
               label="Lihat Detail Kursus"
