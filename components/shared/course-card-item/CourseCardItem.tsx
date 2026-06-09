@@ -9,12 +9,13 @@ import Progress from './Progress';
 export interface CourseCardItemProps {
   course: Course;
   progress?: number;
-  onViewDetail: (courseId: string) => void;
-  onAddCourse: (courseId: string) => void;
+  onViewDetail: (course: Course) => void;
+  onAddCourse: (course: Course) => void;
+  isLoadingMyCourse?: boolean;
 }
 
 const CourseCardItem = React.memo<CourseCardItemProps>(
-  ({ course, onViewDetail, onAddCourse, progress }) => {
+  ({ course, onViewDetail, onAddCourse, progress, isLoadingMyCourse }) => {
     return (
       <div className="flex flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
         <div className="relative aspect-video w-full overflow-hidden bg-neutral-100">
@@ -50,7 +51,7 @@ const CourseCardItem = React.memo<CourseCardItemProps>(
                   variant="contained"
                   color="primary"
                   fullWidth
-                  onClick={() => onViewDetail(course.id)}
+                  // onClick={() => onViewDetail(course)}
                 />
                 <Button
                   label="Download Sertifikat"
@@ -58,7 +59,7 @@ const CourseCardItem = React.memo<CourseCardItemProps>(
                   variant="outlined"
                   fullWidth
                   disabled={progress < 100}
-                  onClick={() => onAddCourse(course.id)}
+                  // onClick={() => onAddCourse(course)}
                 />
               </>
             ) : (
@@ -68,14 +69,15 @@ const CourseCardItem = React.memo<CourseCardItemProps>(
                   variant="contained"
                   color="primary"
                   fullWidth
-                  onClick={() => onViewDetail(course.id)}
+                  onClick={() => onViewDetail(course)}
                 />
                 <Button
                   label="Tambah Kursus"
                   variant="outlined"
                   color="neutral"
                   fullWidth
-                  onClick={() => onAddCourse(course.id)}
+                  onClick={() => onAddCourse(course)}
+                  isLoading={isLoadingMyCourse}
                 />
               </>
             )}

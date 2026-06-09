@@ -1,8 +1,8 @@
-import { memo } from 'react';
+import React from 'react';
 
 import Ilustration from './Ilustration';
 
-const Layout = memo(({ children }: { children: React.ReactNode }) => {
+const Layout = React.memo(({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="grid w-full max-w-[1440px] grid-cols-1 items-center justify-items-center gap-8 rounded-2xl bg-white p-6 md:p-12 lg:grid-cols-2 lg:p-16">

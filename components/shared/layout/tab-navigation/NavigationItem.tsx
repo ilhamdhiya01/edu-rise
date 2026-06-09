@@ -1,12 +1,12 @@
 import classNames from 'classnames';
 import Link from 'next/link';
-import { memo, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import Icon from '@/components/ui/icon';
 
 import { NavigationItemProps } from './Navigation';
 
-const NavigationItem = memo(
+const NavigationItem = React.memo(
   ({ label, icon, href, pathName }: NavigationItemProps) => {
     const isActive = useMemo(() => {
       // Handle static routes

@@ -11,10 +11,22 @@ interface ListCourseProps {
   filteredCourses: Course[];
   isLoading: boolean;
   totalCourses: number;
+  onViewDetail: (course: Course) => void;
+  onAddCourse: (course: Course) => void;
+  loadingCourseId: string | null;
 }
 
 const ListCourse = React.memo<ListCourseProps>(
-  ({ isError, onRetry, filteredCourses, isLoading, totalCourses }) => {
+  ({
+    isError,
+    onRetry,
+    filteredCourses,
+    isLoading,
+    totalCourses,
+    onViewDetail,
+    onAddCourse,
+    loadingCourseId,
+  }) => {
     if (isError) {
       return (
         <StateStatus
@@ -64,8 +76,9 @@ const ListCourse = React.memo<ListCourseProps>(
           <CourseCardItem
             key={course.id}
             course={course}
-            onViewDetail={() => {}}
-            onAddCourse={() => {}}
+            onViewDetail={onViewDetail}
+            onAddCourse={onAddCourse}
+            isLoadingMyCourse={loadingCourseId === course.id}
           />
         ))}
       </div>

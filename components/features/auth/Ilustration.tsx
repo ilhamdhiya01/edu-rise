@@ -1,7 +1,7 @@
 import Image from 'next/image';
-import { memo } from 'react';
+import React from 'react';
 
-const Ilustration = memo(() => {
+const Ilustration = React.memo(() => {
   return (
     <div className="relative aspect-4/5 w-full max-w-[550px]">
       <Image

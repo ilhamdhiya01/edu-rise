@@ -8,12 +8,15 @@ import { CourseCardItemSkeleton } from '@/components/shared/skelaton';
 import StateStatus from '@/components/shared/state-status';
 import Button from '@/components/ui/button';
 import { useCourseList } from '@/lib/hooks/courses/useCourseList';
+import { useMyCourses } from '@/lib/hooks/courses/useMyCourses';
 
 const RecomendationCourse = React.memo(() => {
   const { data: recommendationCourses = [], isLoading } = useCourseList({
     limit: 4,
     random: true,
   });
+
+  const { handleAddCourse, loadingCourseId } = useMyCourses();
 
   return (
     <SectionContent title="Rekomendasi Kursus">
@@ -31,7 +34,8 @@ const RecomendationCourse = React.memo(() => {
                 key={course.id}
                 course={course}
                 onViewDetail={() => {}}
-                onAddCourse={() => {}}
+                onAddCourse={handleAddCourse}
+                isLoadingMyCourse={loadingCourseId === course.id}
               />
             ))}
           </div>

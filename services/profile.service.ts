@@ -8,12 +8,19 @@ import {
   UpdatePasswordPayload,
   UserDataRequest,
 } from '@/lib/types/profile.types';
+import {
+  API_USERS_UPDATE,
+  API_USERS_UPDATE_IMAGE,
+  API_USERS_UPDATE_NOTIFICATION_EMAIL,
+  API_USERS_UPDATE_NOTIFICATION_WHATSAPP,
+  API_USERS_UPDATE_PASSWORD,
+} from '@/routes';
 
 export const updateUserData = async (
   data: UserDataRequest
 ): Promise<ApiResponse<User>> => {
   try {
-    const res = await axiosInstance.put('api/users/update', data);
+    const res = await axiosInstance.put(API_USERS_UPDATE, data);
     return res.data;
   } catch (error) {
     throw error;
@@ -26,7 +33,7 @@ export const updateUserImage = async (
   // Convert file to base64 or object URL for IndexedDB
   const imageUrl = await fileToDataURL(imageFile);
 
-  const res = await axiosInstance.put('api/users/update-image', {
+  const res = await axiosInstance.put(API_USERS_UPDATE_IMAGE, {
     image: imageUrl,
   });
 
@@ -36,7 +43,7 @@ export const updateUserImage = async (
 export const updatePassword = async (
   payload: UpdatePasswordPayload
 ): Promise<ApiResponse<User>> => {
-  const res = await axiosInstance.put('api/users/update-password', payload);
+  const res = await axiosInstance.put(API_USERS_UPDATE_PASSWORD, payload);
 
   return res.data;
 };
@@ -46,7 +53,7 @@ export const updateNotificationEmail = async (
 ): Promise<ApiResponse<User>> => {
   try {
     const res = await axiosInstance.put(
-      '/api/users/update-notification-email',
+      API_USERS_UPDATE_NOTIFICATION_EMAIL,
       data
     );
     return res.data;
@@ -60,7 +67,7 @@ export const updateNotificationWhatsapp = async (
 ): Promise<ApiResponse<User>> => {
   try {
     const res = await axiosInstance.put(
-      '/api/users/update-notification-whatsapp',
+      API_USERS_UPDATE_NOTIFICATION_WHATSAPP,
       data
     );
     return res.data;

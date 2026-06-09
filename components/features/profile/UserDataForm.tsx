@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
-import { memo } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
@@ -67,7 +67,7 @@ const FormSkeleton = () => {
   );
 };
 
-const UserDataForm = memo(() => {
+const UserDataForm = React.memo(() => {
   const userToken = getUserFromToken();
 
   // ✅ Granular selector: only re-renders when user profile fields change.

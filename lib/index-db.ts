@@ -3,13 +3,21 @@ import { openDB } from 'idb';
 const initDB = async (storeName: string) => {
   return openDB('edu-rise-db', 1, {
     upgrade(db) {
-      if (!db.objectStoreNames.contains(storeName)) {
-        const userStore = db.createObjectStore(storeName, {
+      if (!db.objectStoreNames.contains('users')) {
+        const userStore = db.createObjectStore('users', {
           keyPath: 'id',
           autoIncrement: true,
         });
         userStore.createIndex('by-email', 'email', { unique: true });
         userStore.createIndex('by-username', 'username', { unique: true });
+      }
+
+      if (!db.objectStoreNames.contains('my-courses')) {
+        const courseStore = db.createObjectStore('my-courses', {
+          keyPath: 'id',
+          autoIncrement: true,
+        });
+        courseStore.createIndex('by-course-id', 'courseId', { unique: false });
       }
     },
   });
@@ -35,7 +43,6 @@ export const dbOps = {
     // 'users' = nama store, 'by-email' = nama index yang dibuat di upgrade()
     return db.getFromIndex(storeName, 'by-email', email);
   },
-
   updateByEmail: async (
     storeName: string,
     email: string,
@@ -46,5 +53,9 @@ export const dbOps = {
     if (!existing) throw new Error('User not found');
     const updated = { ...existing, ...data };
     return db.put(storeName, updated);
+  },
+  getByCourseId: async (storeName: string, courseId: string) => {
+    const db = await initDB(storeName);
+    return db.getFromIndex(storeName, 'by-course-id', courseId);
   },
 };

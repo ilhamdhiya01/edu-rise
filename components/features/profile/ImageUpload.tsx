@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import Image from 'next/image';
-import { ChangeEvent, memo, useRef, useState } from 'react';
+import React, { ChangeEvent, useRef, useState } from 'react';
 
 import Icon from '@/components/ui/icon';
 import { getUserFromToken } from '@/lib/helpers';
@@ -40,7 +40,7 @@ const ImageSkeleton = () => {
   );
 };
 
-const ImageUpload = memo(() => {
+const ImageUpload = React.memo(() => {
   const userToken = getUserFromToken();
 
   // ✅ Granular selector: only re-renders when the image field changes.

@@ -1,15 +1,14 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AxiosError } from 'axios';
 import Link from 'next/link';
-import { memo, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { ErrorResponse, LoginInput } from '@/lib/types/auth.types';
+import { LoginInput } from '@/lib/types/auth.types';
 import { REGISTER_PATH } from '@/routes';
 import { loginSchema } from '@/schemas/auth.schema';
 
@@ -18,8 +17,8 @@ const DEFAULT_VALUES: LoginInput = {
   password: '',
 };
 
-const LoginForm = memo(() => {
-  const { handleLogin, isLoggingIn, loginError } = useAuth();
+const LoginForm = React.memo(() => {
+  const { handleLogin, isLoggingIn } = useAuth();
 
   const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
   const [isRememberMe, setIsRememberMe] = useState<boolean>(false);
@@ -89,13 +88,6 @@ const LoginForm = memo(() => {
           </Link>
         </span>
       </div>
-
-      {loginError && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-          {(loginError as AxiosError<ErrorResponse>)?.response?.data?.message ||
-            'Login gagal. Silakan coba lagi.'}
-        </div>
-      )}
 
       <Button type="submit" label="Masuk" fullWidth isLoading={isLoggingIn} />
     </form>

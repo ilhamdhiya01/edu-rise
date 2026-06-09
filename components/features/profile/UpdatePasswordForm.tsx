@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { memo, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
@@ -25,7 +25,7 @@ const DEFAULT_VALUES = {
   confirmPassword: '',
 } as const;
 
-const UpdatePasswordForm = memo(() => {
+const UpdatePasswordForm = React.memo(() => {
   const { handleUpdatePassword, isUpdatingPassword } = useUpdatePassword();
   const [isPasswordVisible, setIsPasswordVisible] = useState<PasswordVisible>({
     password: {

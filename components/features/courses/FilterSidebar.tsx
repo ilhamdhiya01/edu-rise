@@ -24,11 +24,10 @@ interface FilterSidebarProps {
   categories: FilterCategory[];
   selectedFilters: string[];
   onFilterChange: (filters: string[]) => void;
-  totalCourses: number;
 }
 
 const FilterSidebar = React.memo<FilterSidebarProps>(
-  ({ categories, selectedFilters, onFilterChange, totalCourses }) => {
+  ({ categories, selectedFilters, onFilterChange }) => {
     // Track manually toggled categories (both expanded and collapsed)
     const [manuallyToggledCategories, setManuallyToggledCategories] = useState<{
       expanded: string[];

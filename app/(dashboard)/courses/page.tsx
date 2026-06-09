@@ -16,7 +16,9 @@ import { SectionContent } from '@/components/shared/section-content';
 import Input from '@/components/ui/input';
 import { useCategories } from '@/lib/hooks/courses/useCategories';
 import { useCourseList } from '@/lib/hooks/courses/useCourseList';
+import { useMyCourses } from '@/lib/hooks/courses/useMyCourses';
 import { useDebounce } from '@/lib/hooks/useDebounce';
+import { Course } from '@/mocks/mockCourses';
 
 const FilterDrawer = dynamic(
   () => import('@/components/features/courses/FilterDrawer'),
@@ -44,8 +46,9 @@ const CoursesPage = () => {
     return searchParams.get('search') || '';
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  // const [loadingCourseId, setLoadingCourseId] = useState<string | null>(null);
 
-  // Fetch categories and courses
+  // Hook
   const { data: categories = [], isLoading: categoriesLoading } =
     useCategories();
   const {
@@ -54,6 +57,9 @@ const CoursesPage = () => {
     isError,
     refetch,
   } = useCourseList();
+
+  // hook for add course to my courses
+  const { handleAddCourse, loadingCourseId } = useMyCourses();
 
   // Debounce search query
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
@@ -123,22 +129,33 @@ const CoursesPage = () => {
     [router, searchParams]
   );
 
-  const handleViewDetail = useCallback((courseId: string) => {
-    console.log('View detail:', courseId);
-    // Navigate to course detail page
-  }, []);
-
-  const handleAddCourse = useCallback((courseId: string) => {
-    console.log('Add course:', courseId);
-    // Add course to user's courses
-  }, []);
-
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchQuery(e.target.value);
     },
     []
   );
+
+  const handleViewDetail = useCallback((course: Course) => {
+    console.log('View detail:', course.id);
+    // Navigate to course detail page
+  }, []);
+
+  // const handleAddCourse = useCallback(
+  //   async (course: Course) => {
+  //     try {
+  //       setLoadingCourseId(course.id);
+  //       const payload = {
+  //         ...course,
+  //         progress: 50,
+  //       };
+  //       await addCourseAsync(payload);
+  //     } finally {
+  //       setLoadingCourseId(null);
+  //     }
+  //   },
+  //   [addCourseAsync]
+  // );
 
   // On mobile version, execution filter after click apply button
   const handleApplyFilter = useCallback(() => {
@@ -183,7 +200,6 @@ const CoursesPage = () => {
                 categories={categoriesWithCount}
                 selectedFilters={selectedFilters}
                 onFilterChange={handleFilterChange}
-                totalCourses={filteredCourses.length}
               />
             )}
           </div>
@@ -206,6 +222,9 @@ const CoursesPage = () => {
               totalCourses={courses.length}
               isError={isError}
               onRetry={refetch}
+              onViewDetail={handleViewDetail}
+              onAddCourse={handleAddCourse}
+              loadingCourseId={loadingCourseId}
             />
           </div>
         </div>
@@ -223,7 +242,6 @@ const CoursesPage = () => {
           categories={categoriesWithCount}
           selectedFilters={selectedFilters}
           onFilterChange={handleFilterChange}
-          totalCourses={filteredCourses.length}
         />
       </FilterDrawer>
     </>

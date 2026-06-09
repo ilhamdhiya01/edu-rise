@@ -1,6 +1,6 @@
-import { memo } from 'react';
+import React from 'react';
 
-const BrandHeader = memo(({ subtitle }: { subtitle?: string }) => {
+const BrandHeader = React.memo(({ subtitle }: { subtitle?: string }) => {
   return (
     <div className="space-y-2">
       <h1 className="text-primary-500 text-5xl font-bold md:text-6xl">

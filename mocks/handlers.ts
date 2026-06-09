@@ -5,13 +5,27 @@ import { http, HttpResponse } from 'msw';
 import { createMockJWT } from '@/lib/helpers';
 import { dbOps } from '@/lib/index-db';
 import { LoginRequest, RegisterRequest, User } from '@/lib/types/auth.types';
+import { MyCourseRequest } from '@/lib/types/course.types';
 import {
   NotificationEmailRequest,
   NotificationWhatsappRequest,
   UpdatePasswordPayload,
   UserDataRequest,
 } from '@/lib/types/profile.types';
-import { API_AUTH_LOGIN, API_AUTH_REGISTER, API_AUTH_USERS } from '@/routes';
+import {
+  API_ADD_MY_COURSES,
+  API_AUTH_LOGIN,
+  API_AUTH_REGISTER,
+  API_AUTH_USERS,
+  API_CATEGORIES,
+  API_COURSES,
+  API_GET_MY_COURSES,
+  API_USERS_UPDATE,
+  API_USERS_UPDATE_IMAGE,
+  API_USERS_UPDATE_NOTIFICATION_EMAIL,
+  API_USERS_UPDATE_NOTIFICATION_WHATSAPP,
+  API_USERS_UPDATE_PASSWORD,
+} from '@/routes';
 
 import { mockCourses } from './mockCourses';
 import { mockCategories } from './mockData';
@@ -156,7 +170,7 @@ export const handlers = [
   }),
 
   // Mencegat HTTP GET ke '/api/auth/users'
-  http.get(`${API_AUTH_USERS}`, async ({ request }) => {
+  http.get(API_AUTH_USERS, async ({ request }) => {
     try {
       const url = new URL(request.url);
       const email = url.searchParams.get('email');
@@ -207,7 +221,7 @@ export const handlers = [
     }
   }),
 
-  http.put('/api/users/update', async ({ request }) => {
+  http.put(API_USERS_UPDATE, async ({ request }) => {
     try {
       const requestBody = (await request.json()) as UserDataRequest;
 
@@ -268,7 +282,7 @@ export const handlers = [
     }
   }),
 
-  http.put('/api/users/update-image', async ({ request }) => {
+  http.put(API_USERS_UPDATE_IMAGE, async ({ request }) => {
     try {
       const requestBody = (await request.json()) as {
         image: string;
@@ -330,7 +344,7 @@ export const handlers = [
     }
   }),
 
-  http.put('/api/users/update-password', async ({ request }) => {
+  http.put(API_USERS_UPDATE_PASSWORD, async ({ request }) => {
     try {
       const requestBody = (await request.json()) as UpdatePasswordPayload;
       const token = request.headers
@@ -406,7 +420,7 @@ export const handlers = [
     }
   }),
 
-  http.put('/api/users/update-notification-email', async ({ request }) => {
+  http.put(API_USERS_UPDATE_NOTIFICATION_EMAIL, async ({ request }) => {
     try {
       const requestBody = (await request.json()) as NotificationEmailRequest;
       const token = request.headers
@@ -470,7 +484,7 @@ export const handlers = [
     }
   }),
 
-  http.put('/api/users/update-notification-whatsapp', async ({ request }) => {
+  http.put(API_USERS_UPDATE_NOTIFICATION_WHATSAPP, async ({ request }) => {
     try {
       const requestBody = (await request.json()) as NotificationWhatsappRequest;
       const token = request.headers
@@ -533,7 +547,7 @@ export const handlers = [
   }),
 
   // Mencegat HTTP GET ke '/api/categories'
-  http.get('/api/categories', async ({ request }) => {
+  http.get(API_CATEGORIES, async ({ request }) => {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
@@ -556,7 +570,7 @@ export const handlers = [
   }),
 
   // Mencegat HTTP GET ke '/api/courses'
-  http.get('/api/courses', async ({ request }) => {
+  http.get(API_COURSES, async ({ request }) => {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
@@ -571,18 +585,104 @@ export const handlers = [
     return HttpResponse.json(
       {
         success: true,
-        data: mockCourses, // ← Ganti dari mockCategories ke mockCourses
-        message: 'Courses retrieved successfully', // ← Update message
+        data: mockCourses,
+        message: 'Courses retrieved successfully',
       },
       { status: 200 }
     );
-    // return HttpResponse.json(
-    //   {
-    //     success: false,
-    //     message: 'Server error',
-    //   },
-    //   { status: 500 } // Internal Server Error
-    // );
-    // return HttpResponse.error();
+  }),
+
+  http.post(API_ADD_MY_COURSES, async ({ request, params }) => {
+    try {
+      const requestBody = (await request.json()) as MyCourseRequest;
+      const token = request.headers
+        .get('Authorization')
+        ?.replace('Bearer ', '');
+
+      if (!token) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: 'Unauthorized',
+          },
+          { status: 401 }
+        );
+      }
+
+      const decoded = jwtDecode<{ email: string }>(token);
+
+      const existingCourse = await dbOps.getByCourseId(
+        'my-courses',
+        params.courseId as string
+      );
+
+      if (existingCourse) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: 'Kursus ini sudah ada di daftar kursus kamu',
+          },
+          { status: 400 }
+        );
+      }
+
+      const courseData = {
+        ...requestBody,
+        courseId: params.courseId,
+        email: decoded.email,
+        enrolledAt: new Date().toISOString(),
+      };
+
+      await dbOps.add('my-courses', courseData as Record<string, unknown>);
+
+      return HttpResponse.json(
+        {
+          success: true,
+          data: courseData,
+          message: 'Berhasil menambahkan kursus!',
+        },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error('Add course error:', error);
+      return HttpResponse.json(
+        {
+          success: false,
+          message: 'Gagal menambahkan kursus',
+        },
+        { status: 500 }
+      );
+    }
+  }),
+
+  http.get(API_GET_MY_COURSES, async ({ request }) => {
+    const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+      return HttpResponse.json(
+        {
+          success: false,
+          message: 'Unauthorized',
+        },
+        { status: 401 }
+      );
+    }
+
+    const decoded = jwtDecode<{ email: string }>(token);
+
+    const result = await dbOps.getAll('my-courses');
+
+    const filteredResult = result.filter(
+      (course) => course.email === decoded.email
+    );
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: filteredResult,
+        message: 'Courses retrieved successfully',
+      },
+      { status: 200 }
+    );
   }),
 ];

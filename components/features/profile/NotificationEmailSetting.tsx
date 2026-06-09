@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { memo } from 'react';
+import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
@@ -22,7 +22,7 @@ const DEFAULT_VALUES = {
   isNewCourseRecommendation: false,
 } as const;
 
-const NotificationEmailSetting = memo(() => {
+const NotificationEmailSetting = React.memo(() => {
   const userToken = getUserFromToken();
 
   // ✅ Granular selector: only re-renders when email notification fields change.

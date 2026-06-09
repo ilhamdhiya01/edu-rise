@@ -52,8 +52,9 @@ export const useAuth = () => {
 
   const logout = () => {
     clearAuthCookie();
-    queryClient.setQueryData(['currentUser', user?.email], null);
-    queryClient.removeQueries({ queryKey: ['currentUser'] });
+    // queryClient.setQueryData(['currentUser', user?.email], null);
+    // queryClient.removeQueries({ queryKey: ['currentUser'] });
+    queryClient.clear();
     setUser(null);
     router.replace(LOGIN_PATH);
   };

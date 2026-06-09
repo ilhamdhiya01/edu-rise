@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AxiosError } from 'axios';
 import Link from 'next/link';
-import { memo, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
@@ -20,7 +20,7 @@ const DEFAULT_VALUES: RegisterInput = {
   lastName: '',
 };
 
-const RegisterForm = memo(() => {
+const RegisterForm = React.memo(() => {
   const { handleRegister, isRegistering, registerError } = useAuth();
 
   const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
