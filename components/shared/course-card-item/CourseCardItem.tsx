@@ -4,13 +4,13 @@ import React from 'react';
 import Button from '@/components/ui/button';
 import { Course } from '@/mocks/mockCourses';
 
-interface CourseCardProps {
+export interface CourseCardItemProps {
   course: Course;
   onViewDetail: (courseId: string) => void;
   onAddCourse: (courseId: string) => void;
 }
 
-const CourseCard = React.memo<CourseCardProps>(
+const CourseCardItem = React.memo<CourseCardItemProps>(
   ({ course, onViewDetail, onAddCourse }) => {
     return (
       <div className="flex flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
@@ -62,6 +62,6 @@ const CourseCard = React.memo<CourseCardProps>(
   }
 );
 
-CourseCard.displayName = 'CourseCard';
+CourseCardItem.displayName = 'CourseCardItem';
 
-export default CourseCard;
+export default CourseCardItem;

@@ -1,8 +1,8 @@
 import React from 'react';
 
+import { CourseCardItem } from '@/components/shared/course-card-item';
+import StateStatus from '@/components/shared/state-status';
 import { Course } from '@/mocks/mockCourses';
-
-import CourseCard from './CourseCard';
 
 const ListCourse = React.memo<{
   filteredCourses: Course[];
@@ -11,61 +11,41 @@ const ListCourse = React.memo<{
 }>(({ filteredCourses, isLoading, totalCourses }) => {
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <h2 className="text-center text-2xl font-semibold text-neutral-900">
-          Belum ada daftar kursus yang dapat diikuti
-        </h2>
-        <p className="mt-2 text-center text-neutral-600">
-          Mohon tunggu beberapa saat ...
-        </p>
-      </div>
+      <StateStatus
+        title="Belum ada daftar kursus yang dapat diikuti"
+        description="Mohon tunggu beberapa saat ..."
+      />
     );
   }
 
   if (totalCourses === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <h2 className="text-center text-2xl font-semibold text-neutral-900">
-          Belum ada daftar kursus yang dapat diikuti
-        </h2>
-        <p className="mt-2 text-center text-neutral-600">
-          Belum ada kursus yang tersedia saat ini
-        </p>
-      </div>
+      <StateStatus
+        title="Belum ada daftar kursus yang dapat diikuti"
+        description="Belum ada kursus yang tersedia saat ini"
+      />
     );
   }
 
   if (filteredCourses.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <h2 className="text-center text-2xl font-semibold text-neutral-900">
-          Tidak ada kursus yang ditemukan
-        </h2>
-        <p className="mt-2 text-center text-neutral-600">
-          Coba ubah filter atau kata kunci pencarian Anda
-        </p>
-      </div>
+      <StateStatus
+        title="Tidak ada kursus yang ditemukan"
+        description="Coba ubah filter atau kata kunci pencarian Anda"
+      />
     );
   }
   return (
-    <>
-      {filteredCourses.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-          {filteredCourses.map((course) => (
-            <CourseCard
-              key={course.id}
-              course={course}
-              onViewDetail={() => {}}
-              onAddCourse={() => {}}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-12">
-          <p className="text-neutral-600">Tidak ada kursus yang ditemukan</p>
-        </div>
-      )}
-    </>
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+      {filteredCourses.map((course) => (
+        <CourseCardItem
+          key={course.id}
+          course={course}
+          onViewDetail={() => {}}
+          onAddCourse={() => {}}
+        />
+      ))}
+    </div>
   );
 });
 

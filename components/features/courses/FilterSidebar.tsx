@@ -98,7 +98,7 @@ const FilterSidebar = React.memo<FilterSidebarProps>(
 
     return (
       <aside className="sticky top-25 flex h-[calc(100vh-6rem)] w-full flex-col gap-4 self-start overflow-auto">
-        <div className="bg-primary-50 flex w-full max-w-xs items-center justify-between rounded-lg px-4 py-3">
+        <div className="bg-primary-50 hidden w-full max-w-xs items-center justify-between rounded-lg px-4 py-3 lg:flex">
           <div className="flex items-center gap-2">
             <Icon icon="TbFilter" size={18} className="text-primary-700" />
             <span className="text-primary-700 text-sm font-semibold">
@@ -202,17 +202,6 @@ const FilterSidebar = React.memo<FilterSidebarProps>(
               </div>
             );
           })}
-        </div>
-
-        {/* Total Courses Info */}
-        <div className="rounded-lg bg-neutral-50 px-4 py-3">
-          <p className="text-sm text-neutral-600">
-            Menampilkan{' '}
-            <span className="font-semibold text-neutral-900">
-              {totalCourses}
-            </span>{' '}
-            kursus
-          </p>
         </div>
       </aside>
     );

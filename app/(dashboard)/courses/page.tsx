@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, {
   Suspense,
@@ -15,22 +16,37 @@ import {
   FilterCategory,
   FilterSubcategory,
 } from '@/components/features/courses';
+import { SectionContent } from '@/components/shared/section-content';
 import Input from '@/components/ui/input';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import { getCategories, getCourses } from '@/services/course.service';
+
+const FilterDrawer = dynamic(
+  () => import('@/components/features/courses/FilterDrawer'),
+  {
+    loading: () => null,
+    ssr: false,
+  }
+);
 
 const CoursesPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [selectedFilters, setSelectedFilters] = useState<string[]>(() => {
+  // Get initial filters from URL for dynamic rendering
+  const initialFilters = useMemo(() => {
     const filters = searchParams.get('category');
     return filters ? filters.split(',') : [];
-  });
+  }, [searchParams]);
+
+  const [selectedFilters, setSelectedFilters] =
+    useState<string[]>(initialFilters);
+  const [tempFilters, setTempFilters] = useState<string[]>(initialFilters);
 
   const [searchQuery, setSearchQuery] = useState(() => {
     return searchParams.get('search') || '';
   });
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const { data: categories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ['categories'],
@@ -57,8 +73,8 @@ const CoursesPage = () => {
     select: (response) => response.data || [],
   });
 
+  // Debounce search query
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
-
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
 
@@ -71,6 +87,7 @@ const CoursesPage = () => {
     router.replace(`/courses?${params.toString()}`, { scroll: false });
   }, [debouncedSearchQuery]);
 
+  // Calculate course count for each subcategory
   const categoriesWithCount = useMemo(() => {
     return categories.map((cat) => ({
       ...cat,
@@ -108,6 +125,7 @@ const CoursesPage = () => {
     return filtered;
   }, [debouncedSearchQuery, selectedFilters, courses]);
 
+  // Handle filter change
   const handleFilterChange = useCallback(
     (filters: string[]) => {
       setSelectedFilters(filters);
@@ -140,43 +158,87 @@ const CoursesPage = () => {
     []
   );
 
-  console.log({ selectedFilters });
+  // On mobile version, execution filter after click apply button
+  const handleApplyFilter = useCallback(() => {
+    setSelectedFilters(tempFilters);
+    handleFilterChange(tempFilters);
+    setIsFilterOpen(false);
+  }, [tempFilters, handleFilterChange]);
+
+  // On mobile version, cancel filter
+  const handleCancelFilter = useCallback(() => {
+    setTempFilters(selectedFilters);
+    setIsFilterOpen(false);
+  }, [selectedFilters]);
+
+  // On mobile version, reset filter
+  const handleResetFilter = useCallback(() => {
+    setTempFilters([]);
+  }, []);
+
+  // On mobile version, open filter
+  const handleOpenFilter = useCallback(() => {
+    setTempFilters(selectedFilters);
+    setIsFilterOpen(true);
+  }, [selectedFilters]);
 
   return (
-    <div className="flex min-h-screen flex-col gap-6">
-      <h1 className="text-2xl font-semibold text-neutral-900 md:text-3xl">
-        Daftar kursus ({categories.length})
-      </h1>
-      <div className="grid grid-cols-4 gap-6">
-        <div className="col-span-1">
-          <Courses.FilterSidebar
-            categories={categoriesWithCount}
-            selectedFilters={selectedFilters}
-            onFilterChange={handleFilterChange}
-            totalCourses={filteredCourses.length}
-          />
-        </div>
-        <div className="col-span-3 flex flex-1 flex-col gap-4">
-          <div className="ml-auto w-full md:max-w-md">
-            <Input
-              type="search"
-              placeholder="Cari kursus..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              prefix={{
-                icon: 'TbSearch',
-              }}
-              fullWidth
+    <>
+      <SectionContent
+        titleClassName="hidden lg:block"
+        title={`Daftar kursus (${filteredCourses.length})`}
+      >
+        <Courses.CourseHeader
+          totalSelectedFilters={selectedFilters.length}
+          onFilterClick={handleOpenFilter}
+        />
+        <div className="grid grid-cols-4 gap-6">
+          <div className="hidden lg:col-span-1 lg:block">
+            <Courses.FilterSidebar
+              categories={categoriesWithCount}
+              selectedFilters={selectedFilters}
+              onFilterChange={handleFilterChange}
+              totalCourses={filteredCourses.length}
             />
           </div>
-          <Courses.ListCourse
-            filteredCourses={filteredCourses}
-            isLoading={coursesLoading}
-            totalCourses={courses.length}
-          />
+          <div className="col-span-4 flex flex-1 flex-col gap-4 lg:col-span-3">
+            <div className="ml-auto w-full lg:max-w-md">
+              <Input
+                type="search"
+                placeholder="Cari kursus..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                prefix={{
+                  icon: 'TbSearch',
+                }}
+                fullWidth
+              />
+            </div>
+            <Courses.ListCourse
+              filteredCourses={filteredCourses}
+              isLoading={coursesLoading}
+              totalCourses={courses.length}
+            />
+          </div>
         </div>
-      </div>
-    </div>
+      </SectionContent>
+      <FilterDrawer
+        isOpen={isFilterOpen}
+        onClose={handleCancelFilter}
+        selectedFilters={tempFilters}
+        totalCourses={categories.length}
+        onApply={handleApplyFilter}
+        onReset={handleResetFilter}
+        onFilterChange={setTempFilters}
+      >
+        <Courses.FilterSidebar
+          categories={categoriesWithCount}
+          selectedFilters={selectedFilters}
+          onFilterChange={handleFilterChange}
+          totalCourses={filteredCourses.length}
+        />
+      </FilterDrawer>
+    </>
   );
 };
 
