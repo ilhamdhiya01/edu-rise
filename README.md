@@ -18,7 +18,13 @@ Platform pembelajaran online yang dibangun dengan Next.js 14, menampilkan sistem
 ### Prerequisites
 
 - Node.js 18.x atau lebih tinggi
-- npm, yarn, pnpm, atau bun
+- **pnpm** (package manager yang digunakan project ini)
+
+> ⚠️ **Penting**: Project ini menggunakan **pnpm**. Pastikan pnpm sudah terinstall:
+>
+> ```bash
+> npm install -g pnpm
+> ```
 
 ### Langkah Instalasi
 
@@ -32,20 +38,12 @@ cd edu-rise
 2. **Install dependencies**
 
 ```bash
-npm install
-# atau
-yarn install
-# atau
 pnpm install
 ```
 
 3. **Jalankan development server**
 
 ```bash
-npm run dev
-# atau
-yarn dev
-# atau
 pnpm dev
 ```
 
@@ -55,12 +53,15 @@ Akses aplikasi di browser: [http://localhost:3000](http://localhost:3000)
 
 ### Data Dummy untuk Testing
 
-Gunakan kredensial berikut untuk login:
+Aplikasi ini menggunakan **mock backend** dengan data disimpan di **IndexedDB** browser.
 
-```
-Email: john.doe@example.com
-Password: password123
-```
+**Cara Testing:**
+
+1. **Buat akun baru** melalui halaman Register (`/register`)
+2. **Login** menggunakan akun yang sudah dibuat
+3. Data akan tersimpan di IndexedDB browser (persistent)
+
+> 💡 **Catatan**: Data akan hilang jika IndexedDB browser dihapus (clear browser data)
 
 ---
 
@@ -298,29 +299,49 @@ localStorage.setItem('token', token);
 - Same vulnerability dengan localStorage
 - Data hilang pas tab ditutup (UX buruk)
 
-### 2. Route Protection
+### 2. Middleware Proxy untuk Route Protection
 
-Menggunakan Next.js Middleware untuk protect routes:
+Menggunakan Next.js Middleware (`proxy.ts`) untuk protect routes:
+
+**Implementasi:**
 
 ```typescript
-// middleware.ts (simplified)
-export const middleware = (request: NextRequest) => {
+// proxy.ts
+export const proxy = (request: NextRequest) => {
   const token = request.cookies.get('token')?.value;
-  const isPrivateRoute = privateRoutes.includes(path);
+  const path = nextUrl.pathname;
 
+  const isPrivateRoute = privateRoutes.some((route) => {
+    const pattern = route.replace(/\[.*?\]/g, '[^/]+');
+    return new RegExp(`^${pattern}$`).test(path);
+  });
+
+  const isAuthRoute = authRoutes.some((route) => {
+    const pattern = route.replace(/\[.*?\]/g, '[^/]+');
+    return new RegExp(`^${pattern}$`).test(path);
+  });
+
+  // Redirect ke root jika user sudah login tapi akses auth route
+  if (token && isAuthRoute) {
+    return NextResponse.redirect(new URL(ROOT_PATH, url));
+  }
+
+  // Redirect ke login jika user belum login tapi akses private route
   if (!token && isPrivateRoute) {
-    return NextResponse.redirect('/login');
+    return NextResponse.redirect(new URL(LOGIN_PATH, url));
   }
 
   return NextResponse.next();
 };
 ```
 
-**Benefits:**
+**Fungsi Middleware:**
 
-- ✅ Server-side validation (sebelum page load)
-- ✅ Prevent unauthorized access
-- ✅ Better UX (instant redirect)
+- ✅ **Server-side validation**: Validasi dilakukan di server sebelum page load
+- ✅ **Prevent unauthorized access**: Block akses ke protected routes tanpa token
+- ✅ **Auto-redirect authenticated users**: User yang sudah login diarahkan ke dashboard jika akses `/login` atau `/register`
+- ✅ **Dynamic route matching**: Support dynamic routes dengan regex pattern
+- ✅ **Better UX**: Instant redirect tanpa flash content
 
 ### 3. JWT Token (Simulasi)
 
@@ -481,6 +502,8 @@ edu-rise/
 - **ESLint** - Code linting
 - **Prettier** - Code formatting
 - **TypeScript** - Static type checking
+- **Husky** - Git hooks untuk enforce code quality
+- **Commitlint** - Conventional commit message validation
 
 ---
 
@@ -521,17 +544,45 @@ Aplikasi ini menggunakan **mock backend** untuk development. Untuk production:
 
 ---
 
+## � Git Hooks & Code Quality
+
+### Husky
+
+Project ini menggunakan **Husky** untuk menjalankan git hooks otomatis:
+
+**Pre-commit Hook:**
+
+- Menjalankan **lint-staged** untuk lint & format file yang di-stage
+- Memastikan code yang di-commit sudah sesuai standard (ESLint + Prettier)
+- Mencegah code yang error masuk ke repository
+
+**Commit-msg Hook:**
+
+- Menjalankan **commitlint** untuk validasi format commit message
+- Enforce conventional commit format: `<type>(<scope>): <description>`
+- Contoh valid: `feat(courses): add filter by category`
+
+**Conventional Commit Types:**
+
+```
+feat:     Fitur baru
+fix:      Bug fix
+chore:    Maintenance/update dependencies
+refactor: Code refactoring tanpa mengubah behavior
+docs:     Update dokumentasi
+style:    Formatting, missing semicolons, etc.
+test:     Menambahkan test
+```
+
+**Benefits:**
+
+- ✅ Consistent code style across team
+- ✅ Clean git history
+- ✅ Automated code quality checks
+- ✅ Prevent bad commits
+
+---
+
 ## 📄 License
 
 MIT License - free to use and modify
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
