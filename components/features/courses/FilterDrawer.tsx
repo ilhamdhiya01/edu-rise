@@ -3,6 +3,7 @@
 import classNames from 'classnames';
 import React, { useEffect } from 'react';
 
+import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 import FilterSidebar from './FilterSidebar';
@@ -104,18 +105,23 @@ const FilterDrawer = React.memo<FilterDrawerProps>(
           {/* Footer Actions */}
           <div className="border-t border-neutral-200 px-4 py-4">
             <div className="flex gap-3">
-              <button
-                onClick={onReset}
-                className="flex-1 rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
-              >
-                Reset Filter
-              </button>
-              <button
-                onClick={onApply}
-                className="bg-primary-600 hover:bg-primary-700 flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors"
-              >
-                Terapkan ({selectedFilters.length})
-              </button>
+              <div className="flex-1">
+                <Button
+                  //   size="sm"
+                  label="Reset Filter"
+                  onClick={onReset}
+                  variant="outlined"
+                  fullWidth
+                />
+              </div>
+              <div className="flex-1">
+                <Button
+                  //   size="sm"
+                  label={`Terapkan (${selectedFilters.length})`}
+                  onClick={onApply}
+                  fullWidth
+                />
+              </div>
             </div>
           </div>
         </div>

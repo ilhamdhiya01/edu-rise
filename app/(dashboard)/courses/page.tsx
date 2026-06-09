@@ -1,6 +1,5 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, {
@@ -11,15 +10,13 @@ import React, {
   useState,
 } from 'react';
 
-import {
-  Courses,
-  FilterCategory,
-  FilterSubcategory,
-} from '@/components/features/courses';
+import { Courses, FilterSubcategory } from '@/components/features/courses';
+import FilterSidebarSkeleton from '@/components/features/courses/FilterSidebarSkelaton';
 import { SectionContent } from '@/components/shared/section-content';
 import Input from '@/components/ui/input';
+import { useCategories } from '@/lib/hooks/courses/useCategories';
+import { useCourseList } from '@/lib/hooks/courses/useCourseList';
 import { useDebounce } from '@/lib/hooks/useDebounce';
-import { getCategories, getCourses } from '@/services/course.service';
 
 const FilterDrawer = dynamic(
   () => import('@/components/features/courses/FilterDrawer'),
@@ -48,30 +45,15 @@ const CoursesPage = () => {
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
-    queryKey: ['categories'],
-    queryFn: getCategories,
-    select: (response) =>
-      response.data?.map((cat) => ({
-        id: cat.id,
-        name: cat.name,
-        icon: cat.icon,
-        count: cat.subCategories?.length || 0,
-        subcategories: cat.subCategories?.map((sub) => ({
-          id: sub.id,
-          name: sub.name,
-          count: 0,
-          slug: sub.slug,
-          categoryId: sub.categoryId,
-        })),
-      })) as FilterCategory[],
-  });
-
-  const { data: courses = [], isLoading: coursesLoading } = useQuery({
-    queryKey: ['courses'],
-    queryFn: getCourses,
-    select: (response) => response.data || [],
-  });
+  // Fetch categories and courses
+  const { data: categories = [], isLoading: categoriesLoading } =
+    useCategories();
+  const {
+    data: courses = [],
+    isLoading: coursesLoading,
+    isError,
+    refetch,
+  } = useCourseList();
 
   // Debounce search query
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
@@ -194,12 +176,16 @@ const CoursesPage = () => {
         />
         <div className="grid grid-cols-4 gap-6">
           <div className="hidden lg:col-span-1 lg:block">
-            <Courses.FilterSidebar
-              categories={categoriesWithCount}
-              selectedFilters={selectedFilters}
-              onFilterChange={handleFilterChange}
-              totalCourses={filteredCourses.length}
-            />
+            {categoriesLoading ? (
+              <FilterSidebarSkeleton />
+            ) : (
+              <Courses.FilterSidebar
+                categories={categoriesWithCount}
+                selectedFilters={selectedFilters}
+                onFilterChange={handleFilterChange}
+                totalCourses={filteredCourses.length}
+              />
+            )}
           </div>
           <div className="col-span-4 flex flex-1 flex-col gap-4 lg:col-span-3">
             <div className="ml-auto w-full lg:max-w-md">
@@ -218,6 +204,8 @@ const CoursesPage = () => {
               filteredCourses={filteredCourses}
               isLoading={coursesLoading}
               totalCourses={courses.length}
+              isError={isError}
+              onRetry={refetch}
             />
           </div>
         </div>

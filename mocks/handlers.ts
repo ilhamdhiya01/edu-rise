@@ -576,5 +576,13 @@ export const handlers = [
       },
       { status: 200 }
     );
+    // return HttpResponse.json(
+    //   {
+    //     success: false,
+    //     message: 'Server error',
+    //   },
+    //   { status: 500 } // Internal Server Error
+    // );
+    // return HttpResponse.error();
   }),
 ];

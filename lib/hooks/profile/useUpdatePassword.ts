@@ -6,12 +6,6 @@ import { ErrorResponse } from '@/lib/types/auth.types';
 import { UpdatePasswordPayload } from '@/lib/types/profile.types';
 import { updatePassword } from '@/services/profile.service';
 
-/**
- * @description Hook for updating the user password.
- * Password mutation has no optimistic update since the current password
- * must be validated server-side before any UI change is appropriate.
- * @returns Mutation handler and its associated loading/error/success states.
- */
 export const useUpdatePassword = () => {
   const mutation = useMutation({
     mutationFn: (payload: UpdatePasswordPayload) => updatePassword(payload),

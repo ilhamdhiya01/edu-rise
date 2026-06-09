@@ -8,12 +8,6 @@ import { ErrorResponse, User } from '@/lib/types/auth.types';
 import { NotificationWhatsappRequest } from '@/lib/types/profile.types';
 import { updateNotificationWhatsapp } from '@/services/profile.service';
 
-/**
- * @description Hook for updating WhatsApp notification settings.
- * Performs optimistic updates directly on TanStack Query cache —
- * no Zustand writes, preventing cascading re-renders in unrelated forms.
- * @returns Mutation handler and its associated loading/error/success states.
- */
 export const useUpdateNotificationWhatsapp = () => {
   const userToken = getUserFromToken();
 

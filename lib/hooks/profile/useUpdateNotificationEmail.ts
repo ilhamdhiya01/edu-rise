@@ -8,12 +8,6 @@ import { ErrorResponse, User } from '@/lib/types/auth.types';
 import { NotificationEmailRequest } from '@/lib/types/profile.types';
 import { updateNotificationEmail } from '@/services/profile.service';
 
-/**
- * @description Hook for updating email notification settings.
- * Performs optimistic updates directly on TanStack Query cache —
- * no Zustand writes, preventing cascading re-renders in unrelated forms.
- * @returns Mutation handler and its associated loading/error/success states.
- */
 export const useUpdateNotificationEmail = () => {
   const userToken = getUserFromToken();
 

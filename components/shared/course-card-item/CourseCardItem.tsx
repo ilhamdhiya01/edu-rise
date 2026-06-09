@@ -4,14 +4,17 @@ import React from 'react';
 import Button from '@/components/ui/button';
 import { Course } from '@/mocks/mockCourses';
 
+import Progress from './Progress';
+
 export interface CourseCardItemProps {
   course: Course;
+  progress?: number;
   onViewDetail: (courseId: string) => void;
   onAddCourse: (courseId: string) => void;
 }
 
 const CourseCardItem = React.memo<CourseCardItemProps>(
-  ({ course, onViewDetail, onAddCourse }) => {
+  ({ course, onViewDetail, onAddCourse, progress }) => {
     return (
       <div className="flex flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
         <div className="relative aspect-video w-full overflow-hidden bg-neutral-100">
@@ -39,22 +42,43 @@ const CourseCardItem = React.memo<CourseCardItemProps>(
           </div>
 
           <div className="mt-auto flex flex-col gap-2">
-            <Button
-              label="Lihat Detail Kursus"
-              variant="contained"
-              color="primary"
-              size="sm"
-              fullWidth
-              onClick={() => onViewDetail(course.id)}
-            />
-            <Button
-              label="Tambah Kursus"
-              variant="outlined"
-              color="neutral"
-              size="sm"
-              fullWidth
-              onClick={() => onAddCourse(course.id)}
-            />
+            {typeof progress === 'number' ? (
+              <>
+                <Progress progress={progress} />
+                <Button
+                  label={progress > 0 ? 'Lanjutkan Kursus' : 'Mulai Kursus'}
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={() => onViewDetail(course.id)}
+                />
+                <Button
+                  label="Download Sertifikat"
+                  preffixIcon="TbDownload"
+                  variant="outlined"
+                  fullWidth
+                  disabled={progress < 100}
+                  onClick={() => onAddCourse(course.id)}
+                />
+              </>
+            ) : (
+              <>
+                <Button
+                  label="Lihat Detail Kursus"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={() => onViewDetail(course.id)}
+                />
+                <Button
+                  label="Tambah Kursus"
+                  variant="outlined"
+                  color="neutral"
+                  fullWidth
+                  onClick={() => onAddCourse(course.id)}
+                />
+              </>
+            )}
           </div>
         </div>
       </div>

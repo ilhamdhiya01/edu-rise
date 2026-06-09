@@ -7,12 +7,6 @@ import { queryClient } from '@/lib/tanstack-query';
 import { ErrorResponse, User } from '@/lib/types/auth.types';
 import { updateUserImage } from '@/services/profile.service';
 
-/**
- * @description Hook for updating the user profile image.
- * Performs optimistic updates with a temporary Object URL directly on
- * TanStack Query cache — no Zustand writes, preventing cascading re-renders.
- * @returns Mutation handler and its associated loading/error/success states.
- */
 export const useUpdateUserImage = () => {
   const userToken = getUserFromToken();
 

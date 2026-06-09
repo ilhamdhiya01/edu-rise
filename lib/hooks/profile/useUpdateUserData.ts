@@ -8,18 +8,13 @@ import { ErrorResponse, User } from '@/lib/types/auth.types';
 import { UserDataRequest } from '@/lib/types/profile.types';
 import { updateUserData } from '@/services/profile.service';
 
-/**
- * @description Hook for updating core user profile data (name, email, etc.).
- * Performs optimistic updates directly on TanStack Query cache —
- * no Zustand writes, preventing cascading re-renders in unrelated forms.
- * @returns Mutation handler and its associated loading/error/success states.
- */
 export const useUpdateUserData = () => {
   const userToken = getUserFromToken();
 
   const mutation = useMutation({
     mutationFn: (payload: UserDataRequest) => updateUserData(payload),
 
+    // Optimistic update: update cache immediately with new data
     onMutate: async (newData: UserDataRequest) => {
       await queryClient.cancelQueries({
         queryKey: ['currentUser', userToken?.email],
@@ -40,6 +35,7 @@ export const useUpdateUserData = () => {
       return { previousUser };
     },
 
+    // Update cache with server response
     onSuccess: (response) => {
       if (response.success) {
         queryClient.setQueryData(['currentUser', userToken?.email], {
@@ -50,6 +46,7 @@ export const useUpdateUserData = () => {
       }
     },
 
+    // Rollback cache on error
     onError: (error: AxiosError<ErrorResponse>, _variables, context) => {
       if (context?.previousUser) {
         queryClient.setQueryData(

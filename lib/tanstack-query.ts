@@ -7,9 +7,9 @@ import { User } from './types/auth.types';
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onSuccess: (data, query) => {
-      // Cek apakah query yang baru sukses memiliki meta 'syncToZustand'
+      // Check if the query that just succeeded has the 'syncToZustand' meta
       if (query.meta?.syncToZustand) {
-        // Update ke Zustand dengan aman tanpa melanggar aturan render React!
+        // Update to Zustand safely without breaking React render rules!
         useAuthStore.getState().setUser(data as User);
       }
     },

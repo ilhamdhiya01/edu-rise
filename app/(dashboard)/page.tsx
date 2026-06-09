@@ -1,8 +1,6 @@
-'use client';
-
+import { Dashboard } from '@/components/features/dashboard';
 import MetricCardItem from '@/components/features/dashboard/MetricCardItem';
 import { SectionContent } from '@/components/shared/section-content';
-import StateStatus from '@/components/shared/state-status';
 
 const DashboardPage = () => {
   return (
@@ -35,39 +33,8 @@ const DashboardPage = () => {
           </div>
         </div>
       </SectionContent>
-      <SectionContent title="Kursus Saya (3)">
-        <StateStatus
-          title="Belum ada kursus yang diikuti"
-          description="Tambah kursus di daftar kursus"
-          action={{
-            label: 'Tambahkan Kursus',
-            onClick: () => {},
-          }}
-        />
-        {/* <div className="flex flex-col items-center justify-center py-20">
-          <h2 className="text-center text-2xl font-semibold text-neutral-900">
-            Belum ada kursus yang diikuti
-          </h2>
-          <p className="mt-2 text-center text-neutral-600">
-            Tambah kursus di daftar kursus
-          </p>
-          <Button label="Tambahkan Kursus" className="mt-4" />
-        </div> */}
-      </SectionContent>
-      <SectionContent title="Rekomendasi Kursus">
-        <StateStatus
-          title="Belum ada daftar kursus yang dapat diikuti"
-          description="Mohon tunggu beberapa saat ..."
-        />
-        {/* <div className="flex flex-col items-center justify-center py-20">
-          <h2 className="text-center text-2xl font-semibold text-neutral-900">
-            Belum ada daftar kursus yang dapat diikuti
-          </h2>
-          <p className="mt-2 text-center text-neutral-600">
-            Mohon tunggu beberapa saat ...
-          </p>
-        </div> */}
-      </SectionContent>
+      <Dashboard.MyCourses />
+      <Dashboard.RecomendationCourse />
     </div>
   );
 };
