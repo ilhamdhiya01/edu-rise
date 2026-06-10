@@ -7,7 +7,7 @@ Platform pembelajaran online yang dibangun dengan Next.js 16, menampilkan sistem
 - [Instalasi](#instalasi)
   - [Menjalankan dengan Docker Compose](#menjalankan-dengan-docker-compose)
 - [Arsitektur Aplikasi](#arsitektur-aplikasi)
-- [State Management & Data Fetching](#state-management--data-fetching)
+- [State Management dengan React Query & Zustand](#state-management-dengan-react-query--zustand)
 - [Strategi Keamanan](#strategi-keamanan)
 - [Struktur Folder](#struktur-folder)
 - [Tech Stack](#tech-stack)
@@ -177,29 +177,6 @@ Setiap fitur memiliki custom hooks untuk encapsulate logic:
 - **Separation**: UI terpisah dari business logic
 
 ---
-
-## 📊 State Management & Data Fetching
-
-### React Query (TanStack Query)
-
-**Keputusan:** Menggunakan React Query sebagai state management untuk **server state**.
-
-#### Alasan Pemilihan React Query:
-
-**1. Server State vs Client State**
-
-```typescript
-// Server State (managed by React Query)
-- User data
-- Courses list
-- My courses
-- Categories
-
-// Client State (managed by useState/Context)
-- UI state (modals, drawers)
-- Form state (React Hook Form)
-- Loading states (local)
-```
 
 ## 🧪 Strategi Pengujian (Testing)
 
@@ -392,20 +369,25 @@ Komponen UI critical (Button, Input, Form) harus memiliki coverage 100%.
 
 ---
 
-## 📊 State Management dengan React Query
+## 📊 State Management dengan React Query & Zustand
 
-### Mengapa React Query?
+Project ini menggunakan **hybrid approach** untuk state management:
 
-**1. Server State vs Client State**
+- **React Query** → Server state (data dari API)
+- **Zustand** → Shared client state (autentikasi)
+- **useState** → Local UI state (form, modal, toggle)
+
+### React Query (TanStack Query) — Server State
+
+**Keputusan:** Menggunakan React Query untuk mengelola **server state**.
+
+#### Alasan Pemilihan React Query:
 
 - ✅ **Automatic Caching**: Data di-cache otomatis, mengurangi request redundan
 - ✅ **Background Refetching**: Data selalu fresh tanpa user action
 - ✅ **Optimistic Updates**: UI update instant sebelum API response
 - ✅ **Request Deduplication**: Multiple request ke endpoint sama dijadikan 1
 - ✅ **Garbage Collection**: Cache yang tidak terpakai otomatis dibersihkan
-- ✅ **Pagination & Infinite Scroll**: Built-in support
-
-**3. Developer Experience**
 
 ```typescript
 // Tanpa React Query (manual)
@@ -429,47 +411,85 @@ const { data, isLoading, error } = useQuery({
 });
 ```
 
-**4. Performance Optimization**
+#### Performance Optimization:
 
 - **Stale While Revalidate**: Tampilkan cache dulu, fetch di background
 - **Window Focus Refetching**: Auto-refetch pas user kembali ke tab
 - **Retry Logic**: Auto-retry pas request gagal
 - **Query Invalidation**: Selective cache invalidation
 
-#### Mengapa TIDAK Menggunakan Redux/Zustand?
+### Zustand — Shared Client State
 
-**Redux/Zustand cocok untuk:**
+**Keputusan:** Menggunakan **Zustand** untuk shared client state yang perlu diakses dari banyak komponen.
 
-- Complex client-side state (shopping cart, theme, preferences)
-- State yang perlu diakses dari banyak unrelated components
-- State yang tidak sync dengan server
+#### Mengapa Zustand?
 
-**Aplikasi ini:**
+- ✅ **Lightweight**: ~1KB, tidak ada boilerplate seperti Redux
+- ✅ **Simple API**: Menggunakan hooks, tidak perlu Provider wrapper
+- ✅ **No Prop Drilling**: State bisa diakses dari komponen mana saja
+- ✅ **TypeScript Native**: Full type safety tanpa konfigurasi tambahan
+- ✅ **No Re-render Issues**: Hanya komponen yang menggunakan state tertentu yang re-render
 
-- Mayoritas state adalah server state (courses, user data)
-- React Query sudah handle caching & synchronization
-- Client state yang ada cukup simple (form, UI toggles) → `useState` cukup
+#### Implementasi — Auth Store:
 
-**Kesimpulan:** Menggunakan Redux/Zustand untuk server state adalah **overkill** dan **anti-pattern**.
+```typescript
+// stores/useAuthStore.ts
+import { create } from 'zustand';
+
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  setUser: (user: User | null) => void;
+  logout: () => void;
+}
+
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  isAuthenticated: false,
+  setUser: (user) => set({ user, isAuthenticated: !!user }),
+  logout: () => set({ user: null, isAuthenticated: false }),
+}));
+```
+
+#### Penggunaan di Komponen:
+
+```typescript
+// Mengambil seluruh state (akan re-render saat state berubah)
+const { user, isAuthenticated } = useAuthStore();
+
+// Mengambil state spesifik (hanya re-render saat field ini berubah)
+const user = useAuthStore((state) => state.user);
+const setUser = useAuthStore((state) => state.setUser);
+```
+
+#### Mengapa React Query + Zustand, Bukan Redux?
+
+| Aspek          | Redux                             | React Query + Zustand |
+| -------------- | --------------------------------- | --------------------- |
+| Server State   | Manual caching                    | Automatic caching ✅  |
+| Boilerplate    | Banyak (actions, reducers, types) | Minimal               |
+| Learning Curve | Curam                             | Flat                  |
+| Bundle Size    | ~7KB                              | ~1KB (Zustand)        |
+
+**Kesimpulan:** React Query untuk server state + Zustand untuk shared client state adalah kombinasi yang **efisien dan minimal**.
 
 #### Strategy: Hybrid Approach
 
 ```
 Server State → React Query
-  - User data
+  - User data (sync dengan API)
   - Courses
   - Categories
   - My courses
 
-Client State → useState/useReducer
-  - Form state (React Hook Form)
-  - Modal/Drawer open state
-  - Local filters & search
+Shared Client State → Zustand
+  - Auth state (user, isAuthenticated)
+  - User preferences
 
-Shared Client State (future) → Context/Zustand
-  - Theme
-  - Language preferences
-  - Global notifications
+Local Client State → useState / useReducer
+  - Form state (React Hook Form)
+  - Modal / Drawer open state
+  - Local filters & search
 ```
 
 ---
