@@ -23,8 +23,7 @@ const DEFAULT_VALUES = {
 const NotificationWhatsappSetting = React.memo(() => {
   const userToken = getUserFromToken();
 
-  // ✅ Granular selector: only re-renders when WA notification fields change.
-  // TanStack Query's structuralSharing prevents re-renders for unrelated field updates.
+  // Granular selector: only re-renders when WA notification fields change.
   const { data: notifData } = useQuery({
     queryKey: ['currentUser', userToken?.email],
     queryFn: () => getUserByEmail(userToken?.email),

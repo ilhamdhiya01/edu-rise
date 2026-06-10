@@ -97,6 +97,8 @@ Aplikasi ini menggunakan **mock backend** dengan data disimpan di **IndexedDB** 
 
 > 💡 **Catatan**: Data akan hilang jika IndexedDB browser dihapus (clear browser data)
 
+> ⚠️ **Troubleshooting**: Jika saat **pertama kali membuka aplikasi** atau saat **mencoba registrasi terjadi error**, kemungkinan ada masalah cache browser dengan mock service worker (MSW). Silakan lakukan **hard reload** dengan menekan `Cmd + Shift + R` (Mac) atau `Ctrl + Shift + R` (Windows), lalu coba registrasi lagi.
+
 ---
 
 ## 🏗️ Arsitektur Aplikasi

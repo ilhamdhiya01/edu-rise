@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import Icon from '@/components/ui/icon';
-import { useUser } from '@/lib/hooks/useUser';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface DropdownProps {
   isOpen: boolean;
@@ -11,7 +11,7 @@ interface DropdownProps {
 }
 
 const Dropdown = ({ isOpen, onLogout }: DropdownProps) => {
-  const { user } = useUser();
+  const user = useAuthStore((state) => state.user);
 
   return (
     <div

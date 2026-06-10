@@ -7,8 +7,8 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - .:/app # Menyambungkan folder lokal ke container
-      - /app/node_modules # Proteksi node_modules internal container
+      - .:/app # Connect local folder to container
+      - /app/node_modules # Protect internal container node_modules
     environment:
       - NODE_ENV=development
       - NEXT_TELEMETRY_DISABLED=1
