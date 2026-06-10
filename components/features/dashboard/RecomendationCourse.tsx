@@ -13,13 +13,29 @@ import { useMyCourses } from '@/lib/hooks/courses/useMyCourses';
 import { COURSE_LIST_PATH } from '@/routes';
 
 const RecomendationCourse = React.memo(() => {
-  const { data: recommendationCourses = [], isLoading } = useCourseList({
+  const {
+    data: recommendationCourses = [],
+    isLoading,
+    isError,
+  } = useCourseList({
     limit: 4,
     random: true,
   });
   const router = useRouter();
 
   const { handleAddCourse, loadingCourseId } = useMyCourses();
+
+  if (isError) {
+    return (
+      <SectionContent title="Rekomendasi Kursus">
+        <StateStatus
+          type="error"
+          title="Gagal memuat rekomendasi kursus"
+          description="Terjadi kesalahan saat memuat rekomendasi kursus"
+        />
+      </SectionContent>
+    );
+  }
 
   return (
     <SectionContent title="Rekomendasi Kursus">
@@ -53,6 +69,7 @@ const RecomendationCourse = React.memo(() => {
         </div>
       ) : (
         <StateStatus
+          type="empty"
           title="Belum ada kursus"
           description="Belum ada kursus yang tersedia"
         />
