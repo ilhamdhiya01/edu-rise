@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: edu-rise-dev
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app # Menyambungkan folder lokal ke container
+      - /app/node_modules # Proteksi node_modules internal container
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+    restart: unless-stopped

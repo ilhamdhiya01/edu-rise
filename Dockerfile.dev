@@ -1,0 +1,20 @@
+FROM node:20-alpine
+# Tambahkan libc6-compat karena environment Alpine membutuhkannya untuk beberapa library native
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+# Kita cuma copy package files untuk menginstall dependencies di dalam container
+COPY package.json pnpm-lock.yaml ./
+
+# Pasang semua dependencies (termasuk devDependencies seperti Vite/Vitest, dll)
+RUN pnpm install
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Jalankan server development bawaan Next.js lewat pnpm
+CMD ["pnpm", "dev"]
