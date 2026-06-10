@@ -31,7 +31,7 @@ import { mockCourses } from './mockCourses';
 import { mockCategories } from './mockData';
 
 export const handlers = [
-  // Mencegat HTTP POST ke '/api/auth/login'
+  // Login handler
   http.post(API_AUTH_LOGIN, async ({ request }) => {
     try {
       const requestBody = (await request.json()) as LoginRequest;
@@ -221,6 +221,7 @@ export const handlers = [
     }
   }),
 
+  // Update user handler
   http.put(API_USERS_UPDATE, async ({ request }) => {
     try {
       const requestBody = (await request.json()) as UserDataRequest;
@@ -282,6 +283,7 @@ export const handlers = [
     }
   }),
 
+  // Update image handler
   http.put(API_USERS_UPDATE_IMAGE, async ({ request }) => {
     try {
       const requestBody = (await request.json()) as {
@@ -344,6 +346,7 @@ export const handlers = [
     }
   }),
 
+  // Update password handler
   http.put(API_USERS_UPDATE_PASSWORD, async ({ request }) => {
     try {
       const requestBody = (await request.json()) as UpdatePasswordPayload;
@@ -420,6 +423,7 @@ export const handlers = [
     }
   }),
 
+  // Update notification email handler
   http.put(API_USERS_UPDATE_NOTIFICATION_EMAIL, async ({ request }) => {
     try {
       const requestBody = (await request.json()) as NotificationEmailRequest;
@@ -468,7 +472,7 @@ export const handlers = [
         {
           success: true,
           data: userData,
-          message: 'Notification email settings updated successfully',
+          message: 'Email settings updated successfully',
         },
         { status: 200 }
       );
@@ -484,6 +488,7 @@ export const handlers = [
     }
   }),
 
+  // Update notification whatsapp handler
   http.put(API_USERS_UPDATE_NOTIFICATION_WHATSAPP, async ({ request }) => {
     try {
       const requestBody = (await request.json()) as NotificationWhatsappRequest;
@@ -530,7 +535,7 @@ export const handlers = [
         {
           success: true,
           data: userData,
-          message: 'Notification whatsapp settings updated successfully',
+          message: 'Whatsapp settings updated successfully',
         },
         { status: 200 }
       );
@@ -546,7 +551,7 @@ export const handlers = [
     }
   }),
 
-  // Mencegat HTTP GET ke '/api/categories'
+  // Get categories handler
   http.get(API_CATEGORIES, async ({ request }) => {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
 
@@ -569,7 +574,7 @@ export const handlers = [
     );
   }),
 
-  // Mencegat HTTP GET ke '/api/courses'
+  // Get courses handler
   http.get(API_COURSES, async ({ request }) => {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
 
@@ -592,6 +597,7 @@ export const handlers = [
     );
   }),
 
+  // Add my courses handler
   http.post(API_ADD_MY_COURSES, async ({ request, params }) => {
     try {
       const requestBody = (await request.json()) as MyCourseRequest;
@@ -620,7 +626,7 @@ export const handlers = [
         return HttpResponse.json(
           {
             success: false,
-            message: 'Kursus ini sudah ada di daftar kursus kamu',
+            message: 'This course is already in your course list',
           },
           { status: 400 }
         );
@@ -639,7 +645,7 @@ export const handlers = [
         {
           success: true,
           data: courseData,
-          message: 'Berhasil menambahkan kursus!',
+          message: 'Success to add course',
         },
         { status: 200 }
       );
@@ -648,13 +654,14 @@ export const handlers = [
       return HttpResponse.json(
         {
           success: false,
-          message: 'Gagal menambahkan kursus',
+          message: 'Failed to add course',
         },
         { status: 500 }
       );
     }
   }),
 
+  // Get my courses handler
   http.get(API_GET_MY_COURSES, async ({ request }) => {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
 

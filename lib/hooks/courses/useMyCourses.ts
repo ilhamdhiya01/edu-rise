@@ -9,6 +9,13 @@ import { MyCourseRequest } from '@/lib/types/course.types';
 import { Course } from '@/mocks/mockCourses';
 import { addToMyCourses } from '@/services/course.service';
 
+const generateRandomProgress = (): number => {
+  const cases = [0, Math.floor(Math.random() * 99) + 1, 100];
+
+  const randomIndex = Math.floor(Math.random() * cases.length);
+  return cases[randomIndex];
+};
+
 export const useMyCourses = () => {
   const [loadingCourseId, setLoadingCourseId] = useState<string | null>(null);
 
@@ -31,14 +38,14 @@ export const useMyCourses = () => {
         setLoadingCourseId(course.id);
         const payload = {
           ...course,
-          progress: 100,
+          progress: generateRandomProgress(),
         };
         await addCourseMutation.mutateAsync(payload);
       } finally {
         setLoadingCourseId(null);
       }
     },
-    [addCourseMutation.mutateAsync]
+    [addCourseMutation.mutateAsync, generateRandomProgress]
   );
 
   return {

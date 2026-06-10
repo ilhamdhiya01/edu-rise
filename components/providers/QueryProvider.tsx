@@ -7,6 +7,8 @@ import { Toaster } from 'react-hot-toast';
 
 import { queryClient } from '@/lib/tanstack-query';
 
+import OfflineProvider from './OfflineProviderProps';
+
 const QueryProviders = ({ children }: { children: React.ReactNode }) => {
   const [isMswReady, setIsMswReady] = useState<boolean>(
     process.env.NODE_ENV !== 'development'
@@ -31,7 +33,7 @@ const QueryProviders = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <OfflineProvider>{children}</OfflineProvider>
       <ReactQueryDevtools initialIsOpen={false} />
       <Toaster />
     </QueryClientProvider>

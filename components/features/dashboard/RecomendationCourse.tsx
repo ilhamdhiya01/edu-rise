@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 import { CourseCardItem } from '@/components/shared/course-card-item';
@@ -9,12 +10,14 @@ import StateStatus from '@/components/shared/state-status';
 import Button from '@/components/ui/button';
 import { useCourseList } from '@/lib/hooks/courses/useCourseList';
 import { useMyCourses } from '@/lib/hooks/courses/useMyCourses';
+import { COURSE_LIST_PATH } from '@/routes';
 
 const RecomendationCourse = React.memo(() => {
   const { data: recommendationCourses = [], isLoading } = useCourseList({
     limit: 4,
     random: true,
   });
+  const router = useRouter();
 
   const { handleAddCourse, loadingCourseId } = useMyCourses();
 
@@ -33,7 +36,6 @@ const RecomendationCourse = React.memo(() => {
               <CourseCardItem
                 key={course.id}
                 course={course}
-                onViewDetail={() => {}}
                 onAddCourse={handleAddCourse}
                 isLoadingMyCourse={loadingCourseId === course.id}
               />
@@ -45,6 +47,7 @@ const RecomendationCourse = React.memo(() => {
               variant="outlined"
               color="neutral"
               fullWidth
+              onClick={() => router.push(COURSE_LIST_PATH)}
             />
           </div>
         </div>

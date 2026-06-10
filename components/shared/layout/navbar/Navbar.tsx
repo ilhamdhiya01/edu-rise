@@ -7,7 +7,7 @@ import UserDropdown from './user-dropdown';
 
 const Navbar = () => {
   return (
-    <header className="sticky top-0 z-50 flex h-20 items-center justify-between border-b border-slate-300 bg-white">
+    <header className="sticky top-0 z-50 flex h-20 items-center justify-between border-b border-slate-300 bg-white px-4">
       <div className="container mx-auto flex w-full items-center justify-between">
         <Link
           href={ROOT_PATH}

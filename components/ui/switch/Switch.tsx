@@ -9,7 +9,7 @@ interface SwitchProps extends Omit<
   error?: string;
   id?: string;
   className?: string;
-  labelPosition?: 'left' | 'right'; // Fleksibilitas posisi teks label
+  labelPosition?: 'left' | 'right';
 }
 
 const Switch = forwardRef<HTMLInputElement, SwitchProps>(
@@ -23,7 +23,7 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
       checked,
       onChange,
       disabled,
-      labelPosition = 'right', // Default teks berada di sebelah kanan switch
+      labelPosition = 'right',
       ...props
     },
     ref
@@ -33,7 +33,6 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
 
     return (
       <div className="flex flex-col gap-1">
-        {/* Kontainer Utama berwujud Label agar seluruh area (termasuk teks) bisa diklik */}
         <label
           htmlFor={switchId}
           className={classNames('flex w-max items-center gap-3 select-none', {
@@ -42,35 +41,34 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
             'flex-row-reverse': labelPosition === 'left',
           })}
         >
-          {/* 🚀 KONTROLLER SWITCH (Kapsul + Lingkaran Geser) */}
           <div className="relative">
-            {/* Input asli berupa checkbox tersembunyi untuk aksesibilitas & fungsionalitas form */}
             <input
               type="checkbox"
               ref={ref}
               id={switchId}
               checked={checked}
-              onChange={onChange}
+              onChange={(e) => {
+                if (disabled) return;
+                onChange?.(e);
+              }}
               disabled={disabled}
-              className="sr-only" // Menyembunyikan checkbox bawaan browser
+              className="sr-only"
               {...props}
             />
 
-            {/* Latar Belakang Kapsul Switch */}
             <div
               className={classNames(
                 'h-6 w-12 rounded-full transition-colors duration-200',
-                className, // Izinkan kustomisasi background dari luar jika dibutuhkan
+                className,
                 {
                   'bg-neutral-300': !checked && !error,
-                  'bg-blue-500': checked && !error, // Sesuai warna image_763027.png
-                  'border border-red-500 bg-red-200': error, // State jika ada error
+                  'bg-blue-500': checked && !error,
+                  'border border-red-500 bg-red-200': error,
                   'bg-gray-200': disabled,
                 }
               )}
             />
 
-            {/* Lingkaran Putih (Tombol Geser) */}
             <div
               className={classNames(
                 'absolute top-1 left-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200',
@@ -83,7 +81,6 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
             />
           </div>
 
-          {/* 🏷️ TEKS LABEL */}
           {label && (
             <span
               className={classNames('text-sm font-medium transition-colors', {
@@ -98,7 +95,6 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
           )}
         </label>
 
-        {/* PESAN ERROR (Konsisten dengan gaya input milikmu) */}
         {error && <small className="text-xs text-red-500">{error}</small>}
       </div>
     );
