@@ -3,7 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import Icon from '@/components/ui/icon';
-import { useAuthStore } from '@/stores/useAuthStore';
+import { useUser } from '@/lib/hooks/useUser';
+import { PROFILE_PATH } from '@/routes';
 
 interface DropdownProps {
   isOpen: boolean;
@@ -11,7 +12,7 @@ interface DropdownProps {
 }
 
 const Dropdown = ({ isOpen, onLogout }: DropdownProps) => {
-  const user = useAuthStore((state) => state.user);
+  const { user } = useUser();
 
   return (
     <div
@@ -44,7 +45,7 @@ const Dropdown = ({ isOpen, onLogout }: DropdownProps) => {
       </div>
       <div>
         <Link
-          href="/profile"
+          href={PROFILE_PATH}
           className="group flex items-center gap-2 p-3 transition-colors hover:bg-gray-100"
         >
           <Icon

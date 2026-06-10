@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
 import { useAuth } from '@/lib/hooks/useAuth';
-import { useAuthStore } from '@/stores/useAuthStore';
+import { useUser } from '@/lib/hooks/useUser';
 
 import Dropdown from './Dropdown';
 
@@ -13,7 +13,7 @@ const UserDropdown = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { logout } = useAuth();
-  const user = useAuthStore((state) => state.user);
+  const { user } = useUser();
 
   // Close dropdown saat klik di luar
   useEffect(() => {
