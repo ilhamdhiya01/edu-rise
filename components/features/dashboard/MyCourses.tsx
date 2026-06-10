@@ -10,8 +10,20 @@ import StateStatus from '@/components/shared/state-status';
 import { useMyCourseList } from '@/lib/hooks/courses/useMyCourseList';
 
 const MyCourses = React.memo(() => {
-  const { data: myCourses = [], isLoading } = useMyCourseList();
+  const { data: myCourses = [], isLoading, isError } = useMyCourseList();
   const router = useRouter();
+
+  if (isError) {
+    return (
+      <SectionContent title="Kursus Saya">
+        <StateStatus
+          type="error"
+          title="Gagal memuat kursus saya"
+          description="Terjadi kesalahan saat memuat kursus saya"
+        />
+      </SectionContent>
+    );
+  }
   return (
     <SectionContent title={`Kursus Saya (${myCourses.length})`}>
       {isLoading ? (
