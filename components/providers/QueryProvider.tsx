@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast';
 
 import { queryClient } from '@/lib/tanstack-query';
 
+import { Loading } from '../shared/layout/loading';
 import OfflineProvider from './OfflineProviderProps';
 
 const QueryProviders = ({ children }: { children: React.ReactNode }) => {
@@ -17,6 +18,11 @@ const QueryProviders = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       const initMsw = async () => {
+        // Initialize IndexedDB first
+        const { initIndexedDB } = await import('@/lib/index-db');
+        await initIndexedDB();
+
+        // Then start MSW
         const { worker } = await import('@/mocks/browser');
         await worker.start({
           onUnhandledRequest: 'bypass',
@@ -28,7 +34,7 @@ const QueryProviders = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   if (!isMswReady) {
-    return <div>Loading...</div>; // atau loading spinner
+    return <Loading />; // atau loading spinner
   }
 
   return (

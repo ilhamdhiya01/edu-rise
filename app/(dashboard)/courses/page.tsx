@@ -138,24 +138,7 @@ const CoursesPage = () => {
 
   const handleViewDetail = useCallback((course: Course) => {
     console.log('View detail:', course.id);
-    // Navigate to course detail page
   }, []);
-
-  // const handleAddCourse = useCallback(
-  //   async (course: Course) => {
-  //     try {
-  //       setLoadingCourseId(course.id);
-  //       const payload = {
-  //         ...course,
-  //         progress: 50,
-  //       };
-  //       await addCourseAsync(payload);
-  //     } finally {
-  //       setLoadingCourseId(null);
-  //     }
-  //   },
-  //   [addCourseAsync]
-  // );
 
   // On mobile version, execution filter after click apply button
   const handleApplyFilter = useCallback(() => {

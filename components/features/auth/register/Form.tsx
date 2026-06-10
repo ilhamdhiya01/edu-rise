@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AxiosError } from 'axios';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -9,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { ErrorResponse, RegisterInput } from '@/lib/types/auth.types';
+import { RegisterInput } from '@/lib/types/auth.types';
 import { LOGIN_PATH } from '@/routes';
 import { registerSchema } from '@/schemas/auth.schema';
 
@@ -21,7 +20,7 @@ const DEFAULT_VALUES: RegisterInput = {
 };
 
 const RegisterForm = React.memo(() => {
-  const { handleRegister, isRegistering, registerError } = useAuth();
+  const { handleRegister, isRegistering } = useAuth();
 
   const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
 
@@ -89,13 +88,6 @@ const RegisterForm = React.memo(() => {
         }}
         error={errors.password?.message}
       />
-
-      {registerError && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-          {(registerError as AxiosError<ErrorResponse>)?.response?.data
-            ?.message || 'Login gagal. Silakan coba lagi.'}
-        </div>
-      )}
 
       <div className="flex flex-col gap-2">
         <Button

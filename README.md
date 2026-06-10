@@ -1,10 +1,11 @@
 # EduRise - Platform Pembelajaran Online
 
-Platform pembelajaran online yang dibangun dengan Next.js 14, menampilkan sistem manajemen kursus, autentikasi pengguna, dan pengalaman belajar yang interaktif.
+Platform pembelajaran online yang dibangun dengan Next.js 16, menampilkan sistem manajemen kursus, autentikasi pengguna, dan pengalaman belajar yang interaktif.
 
 ## 📋 Daftar Isi
 
 - [Instalasi](#instalasi)
+  - [Menjalankan dengan Docker Compose](#menjalankan-dengan-docker-compose)
 - [Arsitektur Aplikasi](#arsitektur-aplikasi)
 - [State Management & Data Fetching](#state-management--data-fetching)
 - [Strategi Keamanan](#strategi-keamanan)
@@ -51,6 +52,39 @@ pnpm dev
 
 Akses aplikasi di browser: [http://localhost:3000](http://localhost:3000)
 
+---
+
+### 🐳 Menjalankan dengan Docker Compose (Alternatif)
+
+Jika Anda ingin menjalankan project menggunakan Docker, pastikan **Docker** dan **Docker Compose** sudah terinstall.
+
+**Langkah-langkah:**
+
+1. **Build dan jalankan container**
+
+```bash
+docker-compose up --build
+```
+
+2. **Buka aplikasi**
+
+Akses aplikasi di browser: [http://localhost:3000](http://localhost:3000)
+
+**Perintah lain:**
+
+```bash
+# Jalankan di background
+docker-compose up -d --build
+
+# Stop container
+docker-compose down
+
+# Rebuild setelah perubahan
+docker-compose up --build
+```
+
+> 💡 **Catatan**: Docker akan menjalankan aplikasi di port `3000` dengan file `Dockerfile.dev` yang menggunakan image `node:20-alpine` dan `pnpm` sebagai package manager.
+
 ### Data Dummy untuk Testing
 
 Aplikasi ini menggunakan **mock backend** dengan data disimpan di **IndexedDB** browser.
@@ -69,9 +103,9 @@ Aplikasi ini menggunakan **mock backend** dengan data disimpan di **IndexedDB** 
 
 ### Keputusan Arsitektur Utama
 
-#### 1. **App Router (Next.js 14)**
+#### 1. **App Router (Next.js 16)**
 
-Menggunakan App Router Next.js 14 untuk memanfaatkan fitur-fitur terbaru:
+Menggunakan App Router Next.js 16 untuk memanfaatkan fitur-fitur terbaru:
 
 - **Server Components**: Mengurangi JavaScript bundle size di client
 - **Streaming & Suspense**: Loading state yang lebih baik
@@ -671,8 +705,8 @@ edu-rise/
 
 ### Core
 
-- **Next.js 14** - React framework dengan App Router
-- **React 18** - UI library dengan Server Components
+- **Next.js 16** - React framework dengan App Router
+- **React 19** - UI library dengan Server Components
 - **TypeScript** - Type safety
 
 ### Styling

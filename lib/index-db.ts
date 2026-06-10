@@ -1,6 +1,6 @@
 import { openDB } from 'idb';
 
-const initDB = async (storeName: string) => {
+const initDB = async (storeName?: string) => {
   return openDB('edu-rise-db', 1, {
     upgrade(db) {
       if (!db.objectStoreNames.contains('users')) {
@@ -21,6 +21,37 @@ const initDB = async (storeName: string) => {
       }
     },
   });
+};
+
+// Export function to initialize DB early
+export const initIndexedDB = async () => {
+  try {
+    await openDB('edu-rise-db', 1, {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains('users')) {
+          const userStore = db.createObjectStore('users', {
+            keyPath: 'id',
+            autoIncrement: true,
+          });
+          userStore.createIndex('by-email', 'email', { unique: true });
+          userStore.createIndex('by-username', 'username', { unique: true });
+        }
+
+        if (!db.objectStoreNames.contains('my-courses')) {
+          const courseStore = db.createObjectStore('my-courses', {
+            keyPath: 'id',
+            autoIncrement: true,
+          });
+          courseStore.createIndex('by-course-id', 'courseId', {
+            unique: false,
+          });
+        }
+      },
+    });
+    console.log('✅ IndexedDB initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize IndexedDB:', error);
+  }
 };
 
 export const dbOps = {
