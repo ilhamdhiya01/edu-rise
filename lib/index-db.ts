@@ -48,9 +48,9 @@ export const initIndexedDB = async () => {
         }
       },
     });
-    console.log('✅ IndexedDB initialized successfully');
+    console.log('IndexedDB initialized successfully');
   } catch (error) {
-    console.error('❌ Failed to initialize IndexedDB:', error);
+    console.error('Failed to initialize IndexedDB:', error);
   }
 };
 
@@ -68,10 +68,10 @@ export const dbOps = {
     return db.get(storeName, id);
   },
 
-  // Method baru (cari berdasarkan Email)
+  // New method (find by email)
   getByEmail: async (storeName: string, email: string) => {
     const db = await initDB(storeName);
-    // 'users' = nama store, 'by-email' = nama index yang dibuat di upgrade()
+    // 'users' = store name, 'by-email' = index name created in upgrade()
     return db.getFromIndex(storeName, 'by-email', email);
   },
   updateByEmail: async (
