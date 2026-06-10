@@ -165,7 +165,202 @@ Setiap fitur memiliki custom hooks untuk encapsulate logic:
 - Loading states (local)
 ```
 
-**2. Built-in Features**
+## 🧪 Strategi Pengujian (Testing)
+
+Project ini menggunakan **Vitest** dikombinasikan dengan **React Testing Library (RTL)** untuk melakukan pengujian otomatis (_Automated Testing_). Pendekatan ini dipilih karena Vitest memiliki performa yang sangat cepat, _watch mode_ yang instan, serta kompatibilitas penuh dengan ekosistem Vite/Next.js.
+
+### ⚙️ Setup & Konfigurasi
+
+Pengujian dikonfigurasi untuk berjalan di atas _virtual browser environment_ menggunakan `jsdom`.
+
+**1. `vitest.config.ts`**
+
+Konfigurasi utama diletakkan pada root project untuk mengaktifkan fitur _global matchers_ dan mendefinisikan environment testing.
+
+```typescript
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+    css: true,
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './'),
+    },
+  },
+});
+```
+
+**2. `vitest.setup.ts`**
+
+File ini digunakan untuk import custom matchers dari `@testing-library/jest-dom`:
+
+```typescript
+import '@testing-library/jest-dom/vitest';
+```
+
+**3. `tsconfig.json`**
+
+Tambahkan types untuk Vitest dan Jest-DOM:
+
+```json
+{
+  "compilerOptions": {
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
+  }
+}
+```
+
+### 🚀 Menjalankan Test
+
+```bash
+# Menjalankan dalam Watch Mode (Sangat disarankan saat development)
+pnpm test
+
+# Menjalankan test dengan UI
+pnpm test:ui
+
+# Melihat laporan cakupan kode (Test Coverage)
+pnpm test:coverage
+```
+
+### 📂 Struktur File Test
+
+Setiap komponen memiliki folder `__tests__` yang berisi file test:
+
+```
+components/
+├── ui/
+│   ├── button/
+│   │   ├── Button.tsx
+│   │   └── __tests__/
+│   │       └── Button.test.tsx
+│   ├── input/
+│   │   ├── Input.tsx
+│   │   └── __tests__/
+│   │       └── Input.test.tsx
+│   └── switch/
+│       ├── Switch.tsx
+│       └── __tests__/
+│           └── Switch.test.tsx
+```
+
+### ✅ Contoh Test Case
+
+**Button Component:**
+
+```typescript
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import Button from '../Button';
+
+describe('Button', () => {
+  it('renders button with label', () => {
+    render(<Button label="Click Me" />);
+    expect(screen.getByText('Click Me')).toBeInTheDocument();
+  });
+
+  it('calls onClick when clicked', () => {
+    const handleClick = vi.fn();
+    render(<Button label="Click" onClick={handleClick} />);
+
+    fireEvent.click(screen.getByText('Click'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call onClick when disabled', () => {
+    const handleClick = vi.fn();
+    render(<Button label="Disabled" onClick={handleClick} disabled />);
+
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+
+  it('shows loading state and disables button', () => {
+    render(<Button label="Submit" isLoading />);
+    expect(screen.getByRole('button')).toBeDisabled();
+  });
+});
+```
+
+### 🎯 Testing Best Practices
+
+**1. Test User Behavior, Not Implementation**
+
+- Fokus pada apa yang user lihat dan lakukan
+- Gunakan `getByRole`, `getByText`, `getByLabelText` daripada `getByTestId`
+
+**2. Arrange-Act-Assert Pattern**
+
+```typescript
+// Arrange: Setup komponen
+render(<Button label="Click" onClick={handleClick} />);
+
+// Act: Lakukan aksi
+fireEvent.click(screen.getByText('Click'));
+
+// Assert: Verifikasi hasil
+expect(handleClick).toHaveBeenCalled();
+```
+
+**3. Test Accessibility**
+
+- Gunakan `getByRole` untuk memastikan semantic HTML
+- Test keyboard navigation
+- Test screen reader compatibility
+
+**4. Mock External Dependencies**
+
+```typescript
+vi.mock('@/services/api', () => ({
+  fetchCourses: vi.fn(() => Promise.resolve(mockData)),
+}));
+```
+
+### 📊 Coverage Goals
+
+Target minimum coverage untuk project ini:
+
+- **Statements**: 80%
+- **Branches**: 75%
+- **Functions**: 80%
+- **Lines**: 80%
+
+Komponen UI critical (Button, Input, Form) harus memiliki coverage 100%.
+
+### 🔍 Apa yang Harus Di-Test?
+
+**✅ Harus di-test:**
+
+- User interactions (click, type, submit)
+- Conditional rendering
+- Props validation
+- Error states
+- Loading states
+- Accessibility (a11y)
+
+**❌ Tidak perlu di-test:**
+
+- Implementation details
+- Third-party libraries
+- Styling (gunakan visual regression testing)
+- Static content
+
+---
+
+## 📊 State Management dengan React Query
+
+### Mengapa React Query?
+
+**1. Server State vs Client State**
 
 - ✅ **Automatic Caching**: Data di-cache otomatis, mengurangi request redundan
 - ✅ **Background Refetching**: Data selalu fresh tanpa user action
