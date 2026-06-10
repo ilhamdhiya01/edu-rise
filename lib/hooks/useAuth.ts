@@ -8,7 +8,6 @@ import { login, register } from '@/services/auth.service';
 
 import { clearAuthCookie, setAuthCookie } from '../helpers';
 import { LoginRequest, RegisterRequest } from '../types/auth.types';
-import { useUser } from './useUser';
 
 interface ErrorResponse {
   success: boolean;
@@ -18,7 +17,6 @@ interface ErrorResponse {
 export const useAuth = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user, setUser } = useUser();
 
   const loginmMutation = useMutation({
     mutationFn: (payload: LoginRequest) => login(payload),
@@ -55,7 +53,7 @@ export const useAuth = () => {
     // queryClient.setQueryData(['currentUser', user?.email], null);
     // queryClient.removeQueries({ queryKey: ['currentUser'] });
     queryClient.clear();
-    setUser(null);
+    // setUser(null);
     router.replace(LOGIN_PATH);
   };
 

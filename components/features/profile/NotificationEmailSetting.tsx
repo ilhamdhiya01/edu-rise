@@ -25,7 +25,7 @@ const DEFAULT_VALUES = {
 const NotificationEmailSetting = React.memo(() => {
   const userToken = getUserFromToken();
 
-  // ✅ Granular selector: only re-renders when email notification fields change.
+  // Granular selector: only re-renders when email notification fields change.
   const { data: notifData } = useQuery({
     queryKey: ['currentUser', userToken?.email],
     queryFn: () => getUserByEmail(userToken?.email),

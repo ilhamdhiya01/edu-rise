@@ -2,10 +2,10 @@
 
 import Image from 'next/image';
 
-import { useUser } from '@/lib/hooks/useUser';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const ProfileInfo = () => {
-  const { user } = useUser();
+  const user = useAuthStore((state) => state.user);
   return (
     <div className="flex w-full flex-col items-center gap-4 p-4 md:flex-row md:p-6 lg:p-8">
       <div className="size-22 shrink-0 overflow-hidden rounded-full drop-shadow-xl md:size-28">
