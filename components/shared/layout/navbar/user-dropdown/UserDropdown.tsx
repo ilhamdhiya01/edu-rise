@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
 import { useAuth } from '@/lib/hooks/useAuth';
-import { useUser } from '@/lib/hooks/useUser';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 import Dropdown from './Dropdown';
 
@@ -13,7 +13,7 @@ const UserDropdown = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { logout } = useAuth();
-  const { user } = useUser();
+  const userImage = useAuthStore((state) => state.user?.image);
 
   // Close dropdown saat klik di luar
   useEffect(() => {
@@ -36,7 +36,7 @@ const UserDropdown = () => {
         onClick={() => setIsOpen(!isOpen)}
       >
         <Image
-          src={user?.image || '/images/default.webp'}
+          src={userImage || '/images/default.webp'}
           alt="User"
           priority
           className="object-contain"

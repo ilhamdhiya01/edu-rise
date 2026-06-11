@@ -1,7 +1,7 @@
 import axiosInstance from '@/lib/axios';
 import { fileToDataURL } from '@/lib/helpers';
 import { ApiResponse } from '@/lib/types/api.types';
-import { User } from '@/lib/types/auth.types';
+import { AuthResponse, User } from '@/lib/types/auth.types';
 import {
   NotificationEmailRequest,
   NotificationWhatsappRequest,
@@ -18,7 +18,7 @@ import {
 
 export const updateUserData = async (
   data: UserDataRequest
-): Promise<ApiResponse<User>> => {
+): Promise<ApiResponse<User | AuthResponse>> => {
   try {
     const res = await axiosInstance.put(API_USERS_UPDATE, data);
     return res.data;

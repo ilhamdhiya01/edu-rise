@@ -1,19 +1,18 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useShallow } from 'zustand/shallow';
 
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import Switch from '@/components/ui/switch';
-import { getUserFromToken } from '@/lib/helpers';
 import { useUpdateNotificationWhatsapp } from '@/lib/hooks/profile';
 import { NotificationWhatsappInput } from '@/lib/types/profile.types';
 import { notificationWhatsappSchema } from '@/schemas/profile.schema';
-import { getUserByEmail } from '@/services/auth.service';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const DEFAULT_VALUES = {
   isNotificationWhatsapp: false,
@@ -21,18 +20,12 @@ const DEFAULT_VALUES = {
 } as const;
 
 const NotificationWhatsappSetting = React.memo(() => {
-  const userToken = getUserFromToken();
-
-  // Granular selector: only re-renders when WA notification fields change.
-  const { data: notifData } = useQuery({
-    queryKey: ['currentUser', userToken?.email],
-    queryFn: () => getUserByEmail(userToken?.email),
-    enabled: !!userToken?.email,
-    select: (res) => ({
-      isNotificationWhatsapp: res?.data?.isNotificationWhatsapp ?? false,
-      isMotivationalMessage: res?.data?.isMotivationalMessage ?? false,
-    }),
-  });
+  const notifData = useAuthStore(
+    useShallow((state) => ({
+      isNotificationWhatsapp: state.user?.isNotificationWhatsapp ?? false,
+      isMotivationalMessage: state.user?.isMotivationalMessage ?? false,
+    }))
+  );
 
   const { handleUpdateNotificationWhatsapp, isUpdatingNotificationWhatsapp } =
     useUpdateNotificationWhatsapp();

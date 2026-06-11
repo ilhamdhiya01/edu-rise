@@ -226,9 +226,7 @@ export const handlers = [
     try {
       const requestBody = (await request.json()) as UserDataRequest;
 
-      const token = request.headers
-        .get('Authorization')
-        ?.replace('Bearer ', '');
+      let token = request.headers.get('Authorization')?.replace('Bearer ', '');
 
       if (!token) {
         return HttpResponse.json(
@@ -262,12 +260,30 @@ export const handlers = [
 
       await dbOps.updateByEmail('users', user.email, mergedData);
 
+      if (decoded.email !== requestBody.email) {
+        const userProfile = {
+          id: existingUser.id,
+          firstName: existingUser.firstName,
+          lastName: existingUser.lastName,
+          email: requestBody.email,
+          image: existingUser.image,
+          position: existingUser.position,
+        };
+
+        // generate token (cookie is persisted on the client, like a real API)
+        token = createMockJWT(userProfile);
+      }
+
       const { password: _, ...userData } = mergedData;
 
       return HttpResponse.json(
         {
           success: true,
-          data: userData,
+          data: {
+            ...(decoded.email !== requestBody.email
+              ? { user: userData, token }
+              : { ...userData }),
+          },
           message: 'User data updated successfully',
         },
         { status: 200 }
@@ -617,12 +633,16 @@ export const handlers = [
 
       const decoded = jwtDecode<{ email: string }>(token);
 
-      const existingCourse = await dbOps.getByCourseId(
+      const existingCourses = await dbOps.getByCourseId(
         'my-courses',
         params.courseId as string
       );
 
-      if (existingCourse) {
+      const alreadyOwned = existingCourses.some(
+        (c: Record<string, unknown>) => c.email === decoded.email
+      );
+
+      if (alreadyOwned) {
         return HttpResponse.json(
           {
             success: false,

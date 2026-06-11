@@ -1,19 +1,18 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useShallow } from 'zustand/shallow';
 
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import Switch from '@/components/ui/switch';
-import { getUserFromToken } from '@/lib/helpers';
 import { useUpdateNotificationEmail } from '@/lib/hooks/profile';
 import { NotificationEmailInput } from '@/lib/types/profile.types';
 import { notificationEmailSchema } from '@/schemas/profile.schema';
-import { getUserByEmail } from '@/services/auth.service';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const DEFAULT_VALUES = {
   isNotificationEmail: false,
@@ -23,20 +22,14 @@ const DEFAULT_VALUES = {
 } as const;
 
 const NotificationEmailSetting = React.memo(() => {
-  const userToken = getUserFromToken();
-
-  // Granular selector: only re-renders when email notification fields change.
-  const { data: notifData } = useQuery({
-    queryKey: ['currentUser', userToken?.email],
-    queryFn: () => getUserByEmail(userToken?.email),
-    enabled: !!userToken?.email,
-    select: (res) => ({
-      isNotificationEmail: res?.data?.isNotificationEmail ?? false,
-      isWeeklyReport: res?.data?.isWeeklyReport ?? false,
-      isCertificateAchievement: res?.data?.isCertificateAchievement ?? false,
-      isNewCourseRecommendation: res?.data?.isNewCourseRecommendation ?? false,
-    }),
-  });
+  const notifData = useAuthStore(
+    useShallow((state) => ({
+      isNotificationEmail: state.user?.isNotificationEmail ?? false,
+      isWeeklyReport: state.user?.isWeeklyReport ?? false,
+      isCertificateAchievement: state.user?.isCertificateAchievement ?? false,
+      isNewCourseRecommendation: state.user?.isNewCourseRecommendation ?? false,
+    }))
+  );
 
   const { handleUpdateNotificationEmail, isUpdatingNotificationEmail } =
     useUpdateNotificationEmail();

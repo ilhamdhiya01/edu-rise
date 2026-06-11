@@ -9,6 +9,7 @@ import { queryClient } from '@/lib/tanstack-query';
 
 import { Loading } from '../shared/layout/loading';
 import OfflineProvider from './OfflineProviderProps';
+import { UserSync } from './UserSync';
 
 const QueryProviders = ({ children }: { children: React.ReactNode }) => {
   const [isMswReady, setIsMswReady] = useState<boolean>(
@@ -39,6 +40,7 @@ const QueryProviders = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <UserSync />
       <OfflineProvider>{children}</OfflineProvider>
       <ReactQueryDevtools initialIsOpen={false} />
       <Toaster />

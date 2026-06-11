@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { isEqual } from 'lodash';
+import { useEffect } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { getUserByEmail } from '@/services/auth.service';
@@ -8,13 +8,8 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { getUserFromToken } from '../helpers';
 
 export const useUser = () => {
-  const {
-    user: userStore,
-    isAuthenticated,
-    setUser,
-  } = useAuthStore(
+  const { isAuthenticated, setUser } = useAuthStore(
     useShallow((state) => ({
-      user: state.user,
       isAuthenticated: state.isAuthenticated,
       setUser: state.setUser,
     }))
@@ -31,28 +26,21 @@ export const useUser = () => {
     enabled: !!userToken?.email,
     retry: false,
     refetchOnWindowFocus: true,
-    // sync to zustand
-    meta: {
-      persistToZustand: true,
-    },
-    select: (apiResponse) => {
-      const userData = apiResponse?.data;
-
-      const sameUser = isEqual(userStore, userData);
-
-      // Sync to zustand if data is different from store
-      if (!sameUser) {
-        setTimeout(() => setUser(userData), 0);
-      }
-
-      return userData;
-    },
+    // staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
+  // Sync fetched data to Zustand store without subscribing to user
+  useEffect(() => {
+    if (userData?.data) {
+      const currentUser = useAuthStore.getState().user;
+      if (userData.data !== currentUser) {
+        setUser(userData.data);
+      }
+    }
+  }, [userData?.data, setUser]);
+
   return {
-    user: userData || userStore,
     isAuthenticated,
-    setUser,
     isLoading,
     isError,
     userToken,

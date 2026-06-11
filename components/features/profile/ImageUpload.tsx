@@ -1,29 +1,21 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import Image from 'next/image';
 import React, { ChangeEvent, useRef, useState } from 'react';
 
 import Icon from '@/components/ui/icon';
-import { getUserFromToken } from '@/lib/helpers';
 import { useUpdateUserImage } from '@/lib/hooks/profile';
-import { getUserByEmail } from '@/services/auth.service';
+import { useUser } from '@/lib/hooks/useUser';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 import ImageSkeleton from './ImageSkelaton';
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 
 const ImageUpload = React.memo(() => {
-  const userToken = getUserFromToken();
-
-  // Granular selector: only re-renders when the image field changes.
-  const { data: image, isLoading } = useQuery({
-    queryKey: ['currentUser', userToken?.email],
-    queryFn: () => getUserByEmail(userToken?.email),
-    enabled: !!userToken?.email,
-    select: (res) => res?.data?.image ?? null,
-  });
+  const { isLoading } = useUser();
+  const image = useAuthStore((state) => state.user?.image ?? null);
 
   const { handleUpdateUserImage, isUpdatingImage } = useUpdateUserImage();
   const [validationError, setValidationError] = useState<string | null>(null);

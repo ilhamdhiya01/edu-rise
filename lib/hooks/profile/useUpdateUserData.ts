@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
 
-import { getUserFromToken } from '@/lib/helpers';
+import { getUserFromToken, setAuthCookie } from '@/lib/helpers';
 import { queryClient } from '@/lib/tanstack-query';
 import { ErrorResponse, User } from '@/lib/types/auth.types';
 import { UserDataRequest } from '@/lib/types/profile.types';
@@ -38,10 +38,18 @@ export const useUpdateUserData = () => {
     // Update cache with server response
     onSuccess: (response) => {
       if (response.success) {
-        queryClient.setQueryData(['currentUser', userToken?.email], {
-          success: true,
-          data: response.data as User,
-        });
+        if ('token' in response.data) {
+          setAuthCookie(response.data.token);
+          queryClient.setQueryData(['currentUser', userToken?.email], {
+            success: true,
+            data: response.data.user as User,
+          });
+        } else {
+          queryClient.setQueryData(['currentUser', userToken?.email], {
+            success: true,
+            data: response.data as User,
+          });
+        }
         toast.success(response.message);
       }
     },

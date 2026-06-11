@@ -1,10 +1,11 @@
 import classNames from 'classnames';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useShallow } from 'zustand/shallow';
 
 import Icon from '@/components/ui/icon';
-import { useUser } from '@/lib/hooks/useUser';
 import { PROFILE_PATH } from '@/routes';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface DropdownProps {
   isOpen: boolean;
@@ -12,7 +13,14 @@ interface DropdownProps {
 }
 
 const Dropdown = ({ isOpen, onLogout }: DropdownProps) => {
-  const { user } = useUser();
+  const { firstName, lastName, image, position } = useAuthStore(
+    useShallow((state) => ({
+      firstName: state.user?.firstName ?? '',
+      lastName: state.user?.lastName ?? '',
+      image: state.user?.image ?? '',
+      position: state.user?.position ?? '',
+    }))
+  );
 
   return (
     <div
@@ -28,7 +36,7 @@ const Dropdown = ({ isOpen, onLogout }: DropdownProps) => {
       <div className="flex items-center gap-2 border-b border-gray-200 p-3">
         <div className="size-9 overflow-hidden rounded-full drop-shadow">
           <Image
-            src={user?.image || '/images/default.webp'}
+            src={image || '/images/default.webp'}
             alt="User"
             priority
             className="object-contain"
@@ -38,9 +46,9 @@ const Dropdown = ({ isOpen, onLogout }: DropdownProps) => {
         </div>
         <div className="min-w-0">
           <p className="max-w-[120px] truncate text-sm font-medium">
-            {`${user?.firstName} ${user?.lastName}`}
+            {`${firstName} ${lastName}`}
           </p>
-          <p className="text-xs text-gray-500">{user?.position}</p>
+          <p className="text-xs text-gray-500">{position}</p>
         </div>
       </div>
       <div>

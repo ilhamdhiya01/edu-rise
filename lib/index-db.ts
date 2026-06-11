@@ -87,6 +87,6 @@ export const dbOps = {
   },
   getByCourseId: async (storeName: string, courseId: string) => {
     const db = await initDB(storeName);
-    return db.getFromIndex(storeName, 'by-course-id', courseId);
+    return db.getAllFromIndex(storeName, 'by-course-id', courseId);
   },
 };

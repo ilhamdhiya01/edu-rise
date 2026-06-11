@@ -1,17 +1,17 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useShallow } from 'zustand/shallow';
 
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
-import { getUserFromToken } from '@/lib/helpers';
 import { useUpdateUserData } from '@/lib/hooks/profile';
+import { useUser } from '@/lib/hooks/useUser';
 import { UserDataInput } from '@/lib/types/profile.types';
 import { userDataSchema } from '@/schemas/profile.schema';
-import { getUserByEmail } from '@/services/auth.service';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 import FormSkeleton from './FormDataSkelaton';
 
@@ -25,22 +25,18 @@ const DEFAULT_VALUES = {
 };
 
 const UserDataForm = React.memo(() => {
-  const userToken = getUserFromToken();
+  const { isLoading } = useUser();
 
-  // Granular selector: only re-renders when user profile fields change.
-  const { data: userData, isLoading } = useQuery({
-    queryKey: ['currentUser', userToken?.email],
-    queryFn: () => getUserByEmail(userToken?.email),
-    enabled: !!userToken?.email,
-    select: (res) => ({
-      firstName: res?.data?.firstName ?? '',
-      lastName: res?.data?.lastName ?? '',
-      username: res?.data?.username ?? '',
-      email: res?.data?.email ?? '',
-      phoneNumber: res?.data?.phoneNumber ?? '',
-      position: res?.data?.position ?? '',
-    }),
-  });
+  const userData = useAuthStore(
+    useShallow((state) => ({
+      firstName: state.user?.firstName ?? '',
+      lastName: state.user?.lastName ?? '',
+      username: state.user?.username ?? '',
+      email: state.user?.email ?? '',
+      phoneNumber: state.user?.phoneNumber ?? '',
+      position: state.user?.position ?? '',
+    }))
+  );
 
   const { handleUpdateUserData, isUpdating } = useUpdateUserData();
 
