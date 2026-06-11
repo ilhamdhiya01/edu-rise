@@ -645,7 +645,7 @@ export const handlers = [
         {
           success: true,
           data: courseData,
-          message: 'Success to add course',
+          message: 'Success to add my course',
         },
         { status: 200 }
       );
@@ -654,7 +654,7 @@ export const handlers = [
       return HttpResponse.json(
         {
           success: false,
-          message: 'Failed to add course',
+          message: 'Failed to add my course',
         },
         { status: 500 }
       );
