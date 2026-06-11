@@ -37,21 +37,23 @@ export const useUpdateUserData = () => {
 
     // Update cache with server response
     onSuccess: (response) => {
-      if (response.success) {
-        if ('token' in response.data) {
-          setAuthCookie(response.data.token);
-          queryClient.setQueryData(['currentUser', userToken?.email], {
-            success: true,
-            data: response.data.user as User,
-          });
-        } else {
-          queryClient.setQueryData(['currentUser', userToken?.email], {
-            success: true,
-            data: response.data as User,
-          });
-        }
-        toast.success(response.message);
+      if (!response.success) return;
+
+      const hasNewToken = 'token' in response.data;
+      const updatedUser = hasNewToken
+        ? (response.data as { token: string; user: User }).user
+        : (response.data as User);
+
+      if (hasNewToken) {
+        setAuthCookie((response.data as { token: string }).token);
       }
+
+      queryClient.setQueryData(['currentUser', userToken?.email], {
+        success: true,
+        data: updatedUser,
+      });
+
+      toast.success(response.message);
     },
 
     // Rollback cache on error
@@ -61,13 +63,6 @@ export const useUpdateUserData = () => {
           ['currentUser', userToken?.email],
           context.previousUser
         );
-
-        if (context.previousUser.data) {
-          queryClient.setQueryData(['currentUser', userToken?.email], {
-            success: true,
-            data: context.previousUser.data,
-          });
-        }
       }
       toast.error(error.response?.data?.message || error.message);
     },

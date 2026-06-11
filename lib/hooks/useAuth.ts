@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 
 import { LOGIN_PATH, ROOT_PATH } from '@/routes';
 import { login, register } from '@/services/auth.service';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 import { clearAuthCookie, setAuthCookie } from '../helpers';
 import { LoginRequest, RegisterRequest } from '../types/auth.types';
@@ -17,12 +18,16 @@ interface ErrorResponse {
 export const useAuth = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const setUser = useAuthStore((state) => state.setUser);
 
   const loginmMutation = useMutation({
     mutationFn: (payload: LoginRequest) => login(payload),
     onSuccess: (response, variables) => {
       if (response.success && response.data?.token) {
-        setAuthCookie(response.data.token, variables.rememberMe);
+        const { token, user } = response.data;
+        setAuthCookie(token, variables.rememberMe);
+        // Set Zustand store - trigger UserSync re-render
+        setUser(user);
         queryClient.invalidateQueries({ queryKey: ['currentUser'] });
         toast.success(response.message);
         router.replace(ROOT_PATH);
@@ -37,7 +42,10 @@ export const useAuth = () => {
     mutationFn: (payload: RegisterRequest) => register(payload),
     onSuccess: (response) => {
       if (response.success && response.data?.token) {
-        setAuthCookie(response.data.token);
+        const { token, user } = response.data;
+        setAuthCookie(token);
+        // Set Zustand store - trigger UserSync re-render
+        setUser(user);
         queryClient.invalidateQueries({ queryKey: ['currentUser'] });
         toast.success(response.message);
         router.replace(ROOT_PATH);
@@ -50,10 +58,8 @@ export const useAuth = () => {
 
   const logout = () => {
     clearAuthCookie();
-    // queryClient.setQueryData(['currentUser', user?.email], null);
-    // queryClient.removeQueries({ queryKey: ['currentUser'] });
     queryClient.clear();
-    // setUser(null);
+    setUser(null);
     router.replace(LOGIN_PATH);
   };
 

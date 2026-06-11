@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 
-import { User } from '@/lib/types/auth.types';
+import { AuthUser } from '@/lib/types/auth.types';
 
 type AuthState = {
-  user: User | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
 };
 type AuthAction = {
-  setUser: (user: User | null) => void;
+  setUser: (user: AuthUser | null) => void;
 };
 
 type AuthStore = AuthState & AuthAction;
@@ -19,5 +19,5 @@ const initialState: AuthState = {
 
 export const useAuthStore = create<AuthStore>((set) => ({
   ...initialState,
-  setUser: (user: User | null) => set({ user, isAuthenticated: !!user }),
+  setUser: (user: AuthUser | null) => set({ user, isAuthenticated: !!user }),
 }));

@@ -29,7 +29,7 @@ export type User = {
   isMotivationalMessage?: boolean;
 };
 
-export type AuthUser = {
+export type AuthUser = User & {
   id: string;
   firstName: string;
   lastName: string;
